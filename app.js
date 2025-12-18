@@ -1,6 +1,7 @@
 // Application state
 let fauxFeelingsData = [];
 let selectedChips = new Set();
+let allUniqueFeelings = new Set();
 
 // DOM elements
 const searchInput = document.getElementById('feeling-input');
@@ -16,6 +17,16 @@ async function loadData() {
             throw new Error(`HTTP error! status: ${response.status}`);
         }
         fauxFeelingsData = await response.json();
+        
+        // Extract all unique feelings from the feelings arrays
+        fauxFeelingsData.forEach(item => {
+            if (item.feelings) {
+                item.feelings.forEach(feeling => {
+                    allUniqueFeelings.add(feeling);
+                });
+            }
+        });
+        
         renderChips();
         updateNeedsDisplay();
     } catch (error) {
@@ -24,23 +35,29 @@ async function loadData() {
     }
 }
 
-// Filter faux feelings based on search query
+// Filter feelings based on search query
 function filterFeelings(query) {
     if (!query.trim()) {
         return [];
     }
     const lowerQuery = query.toLowerCase();
-    return fauxFeelingsData.filter(feeling => {
-        // Check if fauxFeeling matches
-        if (feeling.fauxFeeling.toLowerCase().includes(lowerQuery)) {
-            return true;
+    const matchingFeelings = [];
+    
+    // Search through all unique feelings
+    allUniqueFeelings.forEach(feeling => {
+        if (feeling.toLowerCase().includes(lowerQuery)) {
+            matchingFeelings.push(feeling);
         }
-        // Check if any of the feelings array items match
-        if (feeling.feelings && feeling.feelings.some(f => f.toLowerCase().includes(lowerQuery))) {
-            return true;
-        }
-        return false;
     });
+    
+    // Also search through faux feelings
+    fauxFeelingsData.forEach(item => {
+        if (item.fauxFeeling.toLowerCase().includes(lowerQuery)) {
+            matchingFeelings.push(item.fauxFeeling);
+        }
+    });
+    
+    return matchingFeelings;
 }
 
 // Render chips in the results section
@@ -52,21 +69,18 @@ function renderChips() {
     chipsContainer.innerHTML = '';
 
     // Create a Set to track which feelings we've already rendered
-    const renderedIds = new Set();
+    const renderedFeelings = new Set();
 
     // First, render selected chips
     selectedChips.forEach(feelingName => {
-        const feeling = fauxFeelingsData.find(f => f.fauxFeeling === feelingName);
-        if (feeling) {
-            const chip = createChip(feeling, true);
-            chipsContainer.appendChild(chip);
-            renderedIds.add(feeling.fauxFeeling);
-        }
+        const chip = createChip(feelingName, true);
+        chipsContainer.appendChild(chip);
+        renderedFeelings.add(feelingName);
     });
 
     // Then, render matching unselected chips
     matchingFeelings.forEach(feeling => {
-        if (!renderedIds.has(feeling.fauxFeeling)) {
+        if (!renderedFeelings.has(feeling)) {
             const chip = createChip(feeling, false);
             chipsContainer.appendChild(chip);
         }
@@ -83,14 +97,14 @@ function renderChips() {
 }
 
 // Create a chip element
-function createChip(feeling, isSelected) {
+function createChip(feelingName, isSelected) {
     const chip = document.createElement('div');
     chip.className = isSelected ? 'chip selected' : 'chip';
-    chip.textContent = feeling.fauxFeeling;
-    chip.dataset.feelingName = feeling.fauxFeeling;
+    chip.textContent = feelingName;
+    chip.dataset.feelingName = feelingName;
 
     chip.addEventListener('click', () => {
-        toggleChipSelection(feeling.fauxFeeling);
+        toggleChipSelection(feelingName);
     });
 
     return chip;
@@ -118,9 +132,19 @@ function updateNeedsDisplay() {
     const allNeeds = new Set();
 
     selectedChips.forEach(feelingName => {
-        const feeling = fauxFeelingsData.find(f => f.fauxFeeling === feelingName);
-        if (feeling && feeling.needs) {
-            feeling.needs.forEach(need => allNeeds.add(need));
+        // Check if it's a faux feeling
+        const fauxFeeling = fauxFeelingsData.find(f => f.fauxFeeling === feelingName);
+        if (fauxFeeling && fauxFeeling.needs) {
+            fauxFeeling.needs.forEach(need => allNeeds.add(need));
+        } else {
+            // It's a regular feeling, find all faux feelings that contain it
+            fauxFeelingsData.forEach(item => {
+                if (item.feelings && item.feelings.includes(feelingName)) {
+                    if (item.needs) {
+                        item.needs.forEach(need => allNeeds.add(need));
+                    }
+                }
+            });
         }
     });
 
