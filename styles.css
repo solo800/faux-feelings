@@ -34,6 +34,7 @@ header h1 {
     margin-top: 8px;
     color: #718096;
     font-size: 1rem;
+    margin-bottom: 24px;
 }
 
 main {
@@ -46,6 +47,79 @@ hr {
     border: none;
     border-top: 2px solid #e2e8f0;
     margin: 16px 0;
+}
+
+/* Tab Navigation */
+.tab-navigation {
+    display: flex;
+    gap: 8px;
+    justify-content: center;
+    margin-top: 20px;
+}
+
+.tab-button {
+    position: relative;
+    padding: 12px 24px;
+    background: white;
+    border: 2px solid #e2e8f0;
+    border-radius: 12px;
+    font-size: 1rem;
+    font-weight: 500;
+    color: #4a5568;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    min-width: 44px;
+    min-height: 44px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.tab-button:hover {
+    background: #f7fafc;
+    border-color: #cbd5e0;
+}
+
+.tab-button.active {
+    background: #7ba8c1;
+    color: white;
+    border-color: #7ba8c1;
+}
+
+.tab-button:active {
+    transform: scale(0.98);
+}
+
+.selection-badge {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 20px;
+    height: 20px;
+    padding: 0 6px;
+    background: #e53e3e;
+    color: white;
+    border-radius: 10px;
+    font-size: 0.75rem;
+    font-weight: 600;
+}
+
+.tab-button.active .selection-badge {
+    background: white;
+    color: #7ba8c1;
+}
+
+.selection-badge.hidden {
+    display: none;
+}
+
+/* Tab Content */
+.tab-content {
+    display: none;
+}
+
+.tab-content.active {
+    display: block;
 }
 
 /* Search Section */
@@ -238,6 +312,30 @@ hr {
     font-weight: 500;
 }
 
+/* Visualization Section */
+.visualization-section {
+    background: white;
+    padding: 24px;
+    border-radius: 16px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+    min-height: 400px;
+}
+
+#visualization-container {
+    width: 100%;
+    min-height: 400px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+#visualization-container:empty::before {
+    content: 'Select some faux feelings in the Search tab to see the visualization';
+    color: #a0aec0;
+    font-style: italic;
+    text-align: center;
+}
+
 /* Responsive Design */
 @media (max-width: 640px) {
     body {
@@ -253,10 +351,27 @@ hr {
         font-size: 1.5rem;
     }
 
+    .subtitle {
+        margin-bottom: 16px;
+    }
+
+    .tab-navigation {
+        gap: 6px;
+        margin-top: 16px;
+    }
+
+    .tab-button {
+        padding: 10px 16px;
+        font-size: 0.9375rem;
+        min-width: 44px;
+        min-height: 44px;
+    }
+
     .search-section,
     .faux-feelings-section,
     .feelings-section,
-    .needs-section {
+    .needs-section,
+    .visualization-section {
         padding: 18px;
         border-radius: 12px;
     }
@@ -285,6 +400,10 @@ hr {
     .chip {
         padding: 8px 16px;
         font-size: 0.875rem;
+    }
+
+    #visualization-container {
+        min-height: 300px;
     }
 }
 
