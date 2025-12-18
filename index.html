@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Faux Feelings</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Faux Feelings</h1>
+        </header>
+        
+        <main>
+            <section class="search-section">
+                <label for="feeling-input" class="search-label">What are you feeling?</label>
+                <input 
+                    type="text" 
+                    id="feeling-input" 
+                    class="search-input" 
+                    placeholder="Type to search feelings..."
+                    autocomplete="off"
+                >
+            </section>
+
+            <section class="results-section">
+                <div id="chips-container" class="chips-container">
+                    <!-- Clickable chips will appear here -->
+                </div>
+            </section>
+
+            <section class="display-section">
+                <div id="selected-display" class="selected-display">
+                    <!-- Selected result details will appear here -->
+                </div>
+            </section>
+        </main>
+    </div>
+</body>
+</html>
