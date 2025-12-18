@@ -12,44 +12,66 @@
             <h1>What's that tickling me inside?<br>Oh right, FEELINGS!</h1>
             <hr>
             <p class="subtitle">Now write them down.</p>
+            
+            <nav class="tab-navigation">
+                <button id="tab-btn-search" class="tab-button active" data-tab="search">
+                    Search
+                </button>
+                <button id="tab-btn-visualization" class="tab-button" data-tab="visualization">
+                    Visualization
+                    <span id="selection-badge" class="selection-badge hidden">0</span>
+                </button>
+            </nav>
         </header>
         
-        <main>
-            <section class="search-section">
-                <label for="feeling-input" class="search-label">What are you feeling?</label>
-                <div class="search-wrapper">
-                    <input 
-                        type="text" 
-                        id="feeling-input" 
-                        class="search-input" 
-                        placeholder="Type to search feelings..."
-                        autocomplete="off"
-                    >
-                    <button id="clear-button" class="clear-button" aria-label="Clear search">✕</button>
-                </div>
-            </section>
+        <div id="tab-search" class="tab-content active">
+            <main>
+                <section class="search-section">
+                    <label for="feeling-input" class="search-label">What are you feeling?</label>
+                    <div class="search-wrapper">
+                        <input 
+                            type="text" 
+                            id="feeling-input" 
+                            class="search-input" 
+                            placeholder="Type to search feelings..."
+                            autocomplete="off"
+                        >
+                        <button id="clear-button" class="clear-button" aria-label="Clear search">✕</button>
+                    </div>
+                </section>
 
-            <section class="faux-feelings-section">
-                <h2 class="section-title">Faux Feelings</h2>
-                <div id="faux-feelings-container" class="chips-container">
-                    <!-- Faux feeling chips will appear here -->
-                </div>
-            </section>
+                <section class="faux-feelings-section">
+                    <h2 class="section-title">Faux Feelings</h2>
+                    <div id="faux-feelings-container" class="chips-container">
+                        <!-- Faux feeling chips will appear here -->
+                    </div>
+                </section>
 
-            <section class="feelings-section">
-                <h2 class="section-title">Feelings</h2>
-                <div id="feelings-container" class="chips-container">
-                    <!-- Feeling chips from selected faux feelings will appear here -->
-                </div>
-            </section>
+                <section class="feelings-section">
+                    <h2 class="section-title">Feelings</h2>
+                    <div id="feelings-container" class="chips-container">
+                        <!-- Feeling chips from selected faux feelings will appear here -->
+                    </div>
+                </section>
 
-            <section class="needs-section">
-                <h2 class="section-title">Core Needs</h2>
-                <div id="needs-container" class="needs-display">
-                    <!-- Core needs will appear here -->
-                </div>
-            </section>
-        </main>
+                <section class="needs-section">
+                    <h2 class="section-title">Core Needs</h2>
+                    <div id="needs-container" class="needs-display">
+                        <!-- Core needs will appear here -->
+                    </div>
+                </section>
+            </main>
+        </div>
+
+        <div id="tab-visualization" class="tab-content">
+            <main>
+                <section class="visualization-section">
+                    <div id="visualization-container">
+                        <!-- Sankey diagram will appear here -->
+                    </div>
+                </section>
+            </main>
+        </div>
     </div>
     <script src="app.js"></script>
 </body>
