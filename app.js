@@ -55,22 +55,47 @@ function searchFeelings(query) {
 function renderFauxFeelings(matchingEntries) {
     fauxFeelingsContainer.innerHTML = '';
     
-    if (matchingEntries.length === 0) {
-        return;
-    }
+    // Create a Set to track which faux feelings we've already rendered
+    const renderedFauxFeelings = new Set();
     
-    matchingEntries.forEach(entry => {
-        const chip = document.createElement('div');
-        chip.className = selectedFauxFeelings.has(entry.fauxFeeling) ? 'chip selected' : 'chip';
-        chip.textContent = entry.fauxFeeling;
-        chip.dataset.fauxFeeling = entry.fauxFeeling;
-        
-        chip.addEventListener('click', () => {
-            toggleFauxFeeling(entry.fauxFeeling);
-        });
-        
-        fauxFeelingsContainer.appendChild(chip);
+    // First, render selected faux feelings (they always show)
+    selectedFauxFeelings.forEach(fauxFeeling => {
+        const entry = fauxFeelingsData.find(e => e.fauxFeeling === fauxFeeling);
+        if (entry) {
+            const chip = document.createElement('div');
+            chip.className = 'chip selected';
+            chip.textContent = entry.fauxFeeling;
+            chip.dataset.fauxFeeling = entry.fauxFeeling;
+            
+            chip.addEventListener('click', () => {
+                toggleFauxFeeling(entry.fauxFeeling);
+            });
+            
+            fauxFeelingsContainer.appendChild(chip);
+            renderedFauxFeelings.add(entry.fauxFeeling);
+        }
     });
+    
+    // Then, render matching unselected faux feelings
+    matchingEntries.forEach(entry => {
+        if (!renderedFauxFeelings.has(entry.fauxFeeling)) {
+            const chip = document.createElement('div');
+            chip.className = 'chip';
+            chip.textContent = entry.fauxFeeling;
+            chip.dataset.fauxFeeling = entry.fauxFeeling;
+            
+            chip.addEventListener('click', () => {
+                toggleFauxFeeling(entry.fauxFeeling);
+            });
+            
+            fauxFeelingsContainer.appendChild(chip);
+        }
+    });
+    
+    // Show placeholder if nothing to display
+    if (fauxFeelingsContainer.children.length === 0) {
+        // Empty container will show CSS ::before placeholder
+    }
 }
 
 // Toggle faux feeling selection
