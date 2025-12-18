@@ -30,9 +30,17 @@ function filterFeelings(query) {
         return [];
     }
     const lowerQuery = query.toLowerCase();
-    return fauxFeelingsData.filter(feeling => 
-        feeling.fauxFeeling.toLowerCase().includes(lowerQuery)
-    );
+    return fauxFeelingsData.filter(feeling => {
+        // Check if fauxFeeling matches
+        if (feeling.fauxFeeling.toLowerCase().includes(lowerQuery)) {
+            return true;
+        }
+        // Check if any of the feelings array items match
+        if (feeling.feelings && feeling.feelings.some(f => f.toLowerCase().includes(lowerQuery))) {
+            return true;
+        }
+        return false;
+    });
 }
 
 // Render chips in the results section
