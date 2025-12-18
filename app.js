@@ -30,10 +30,8 @@ function filterFeelings(query) {
         return [];
     }
     const lowerQuery = query.toLowerCase();
-    return fauxFeelingsData.filter(feeling => {
-        console.log(`feeling query is}`, feeling);
-        feeling.name.toLowerCase().includes(lowerQuery)
-    }
+    return fauxFeelingsData.filter(feeling => 
+        feeling.fauxFeeling.toLowerCase().includes(lowerQuery)
     );
 }
 
@@ -50,17 +48,17 @@ function renderChips() {
 
     // First, render selected chips
     selectedChips.forEach(feelingName => {
-        const feeling = fauxFeelingsData.find(f => f.name === feelingName);
+        const feeling = fauxFeelingsData.find(f => f.fauxFeeling === feelingName);
         if (feeling) {
             const chip = createChip(feeling, true);
             chipsContainer.appendChild(chip);
-            renderedIds.add(feeling.name);
+            renderedIds.add(feeling.fauxFeeling);
         }
     });
 
     // Then, render matching unselected chips
     matchingFeelings.forEach(feeling => {
-        if (!renderedIds.has(feeling.name)) {
+        if (!renderedIds.has(feeling.fauxFeeling)) {
             const chip = createChip(feeling, false);
             chipsContainer.appendChild(chip);
         }
@@ -80,11 +78,11 @@ function renderChips() {
 function createChip(feeling, isSelected) {
     const chip = document.createElement('div');
     chip.className = isSelected ? 'chip selected' : 'chip';
-    chip.textContent = feeling.name;
-    chip.dataset.feelingName = feeling.name;
+    chip.textContent = feeling.fauxFeeling;
+    chip.dataset.feelingName = feeling.fauxFeeling;
 
     chip.addEventListener('click', () => {
-        toggleChipSelection(feeling.name);
+        toggleChipSelection(feeling.fauxFeeling);
     });
 
     return chip;
@@ -112,7 +110,7 @@ function updateNeedsDisplay() {
     const allNeeds = new Set();
 
     selectedChips.forEach(feelingName => {
-        const feeling = fauxFeelingsData.find(f => f.name === feelingName);
+        const feeling = fauxFeelingsData.find(f => f.fauxFeeling === feelingName);
         if (feeling && feeling.needs) {
             feeling.needs.forEach(need => allNeeds.add(need));
         }
