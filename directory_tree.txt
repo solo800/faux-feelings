@@ -1,9 +1,10 @@
 .
 ├── app.js
+├── dev-plan-visualization.md
 ├── directory_tree.txt
 ├── faux-feelings-worksheet.json
 ├── faux-feelings.code-workspace
 ├── index.html
 └── styles.css
 
-1 directory, 6 files
+1 directory, 7 files

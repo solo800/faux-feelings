@@ -2,7 +2,7 @@
 
 ## Overview
 
-Add a visualization tab to the Faux Feelings app that displays a Sankey diagram showing the flow from selected faux-feelings → feelings → needs. The implementation prioritizes mobile-first design and simplicity.
+Add a visualization tab to the Faux Feelings app that displays a **responsive Sankey diagram** showing the flow from selected faux-feelings → feelings → needs. The diagram adapts to viewport size: **vertical (top-to-bottom) on mobile** and **horizontal (left-to-right) on desktop**. The implementation prioritizes mobile-first design.
 
 ---
 
@@ -81,11 +81,15 @@ Add a visualization tab to the Faux Feelings app that displays a Sankey diagram 
 - Style the visualization container to be full-height
 - Add responsive SVG styles (`width: 100%`, `height: auto` or viewport-based)
 - Style the empty state message
+- Ensure container supports both orientations:
+  - Mobile: Vertical layout (height > width)
+  - Desktop: Horizontal layout (width > height)
 
 **Acceptance Criteria:**
 - [ ] SVG container fills available space
 - [ ] Empty state shows helpful message
 - [ ] Container is responsive
+- [ ] Container adapts dimensions based on viewport size
 
 ### 2.3 Build Sankey Data Transformer
 
@@ -128,26 +132,44 @@ Create function `renderSankey()` that:
 - Calls `buildSankeyData()`
 - Clears existing SVG content
 - If no data, shows empty state
-- Configures d3-sankey layout (vertical orientation for mobile)
+- Detects viewport size to determine orientation
+- Configures d3-sankey layout based on orientation
 - Renders nodes as rectangles
 - Renders links as paths
 - Adds text labels to nodes
 
-**Sankey Configuration:**
+**Sankey Configuration (Adaptive Layout):**
 ```javascript
+// Detect viewport and choose orientation
+const isMobile = window.innerWidth < 768;
+
+// Configure sankey with standard horizontal layout
 const sankey = d3.sankey()
   .nodeId(d => d.id)
   .nodeWidth(20)
   .nodePadding(10)
   .nodeAlign(d3.sankeyCenter)
   .extent([[margin, margin], [width - margin, height - margin]]);
+
+// Apply to data
+const graph = sankey(data);
+
+// For mobile: swap x/y coordinates to create vertical flow
+// For desktop: use standard horizontal layout
+if (isMobile) {
+  // Swap x/y coordinates:
+  // - node.y0/y1 becomes the x position (horizontal position)
+  // - node.x0/x1 becomes the y position (vertical position)
+  // This creates top-to-bottom flow instead of left-to-right
+}
 ```
 
 **Acceptance Criteria:**
 - [ ] Diagram renders when switching to visualization tab
-- [ ] Three columns visible: faux-feelings → feelings → needs
-- [ ] Links connect appropriate nodes
-- [ ] Labels are readable
+- [ ] Mobile (< 768px): Three rows visible (top to bottom)
+- [ ] Desktop (≥ 768px): Three columns visible (left to right)
+- [ ] Links connect appropriate nodes in the correct direction
+- [ ] Labels are readable on both orientations
 - [ ] No console errors
 
 ### 2.5 Add Color Coding
@@ -221,15 +243,22 @@ const sankey = d3.sankey()
 **File:** `styles.css`, `app.js`
 
 - Recalculate SVG dimensions on window resize
+- Detect orientation/viewport size and choose appropriate layout:
+  - **Mobile/Portrait (< 768px):** Vertical Sankey (top-to-bottom flow)
+  - **Desktop/Landscape (≥ 768px):** Horizontal Sankey (left-to-right flow)
 - Adjust font sizes for small screens
-- Consider horizontal scroll or zoom for very complex diagrams
+- Consider vertical scroll on mobile for complex diagrams (many selections)
+- Consider horizontal scroll on desktop for complex diagrams
 - Test at 320px, 375px, 768px, 1024px widths
 
 **Acceptance Criteria:**
-- [ ] Diagram redraws on resize
+- [ ] Diagram redraws on resize with appropriate orientation
+- [ ] Mobile shows vertical flow (top-to-bottom)
+- [ ] Desktop shows horizontal flow (left-to-right)
 - [ ] Readable at all breakpoints
-- [ ] No horizontal overflow on mobile
-- [ ] Touch interactions work well
+- [ ] No unwanted overflow (vertical on mobile, horizontal on desktop)
+- [ ] Touch interactions work well on mobile
+- [ ] Mouse interactions work well on desktop
 
 ---
 
@@ -296,6 +325,9 @@ const sankey = d3.sankey()
 ### Visual Tests
 - [ ] Matches existing app aesthetic
 - [ ] Responsive at all breakpoints
+- [ ] Vertical (top-to-bottom) flow is clear and intuitive on mobile
+- [ ] Horizontal (left-to-right) flow is clear and intuitive on desktop
+- [ ] Orientation switches smoothly when resizing viewport
 - [ ] Colors are accessible (sufficient contrast)
 - [ ] Animations are smooth
 
