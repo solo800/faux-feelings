@@ -36,6 +36,12 @@ main {
     gap: 24px;
 }
 
+hr {
+    border: none;
+    border-top: 2px solid #e2e8f0;
+    margin: 16px 0;
+}
+
 /* Search Section */
 .search-section {
     background: white;
