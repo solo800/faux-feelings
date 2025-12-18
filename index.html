@@ -67,12 +67,15 @@
             <main>
                 <section class="visualization-section">
                     <div id="visualization-container">
-                        <!-- Sankey diagram will appear here -->
+                        <p class="empty-state">Select some faux feelings in the Search tab to see the visualization</p>
+                        <svg id="sankey-svg"></svg>
                     </div>
                 </section>
             </main>
         </div>
     </div>
+    <script src="https://cdn.jsdelivr.net/npm/d3@7"></script>
+    <script src="https://cdn.jsdelivr.net/npm/d3-sankey@0.12.3"></script>
     <script src="app.js"></script>
 </body>
 </html>
