@@ -17,13 +17,16 @@
         <main>
             <section class="search-section">
                 <label for="feeling-input" class="search-label">What are you feeling?</label>
-                <input 
-                    type="text" 
-                    id="feeling-input" 
-                    class="search-input" 
-                    placeholder="Type to search feelings..."
-                    autocomplete="off"
-                >
+                <div class="search-wrapper">
+                    <input 
+                        type="text" 
+                        id="feeling-input" 
+                        class="search-input" 
+                        placeholder="Type to search feelings..."
+                        autocomplete="off"
+                    >
+                    <button id="clear-button" class="clear-button" aria-label="Clear search">✕</button>
+                </div>
             </section>
 
             <section class="results-section">
@@ -39,5 +42,6 @@
             </section>
         </main>
     </div>
+    <script src="app.js"></script>
 </body>
 </html>
