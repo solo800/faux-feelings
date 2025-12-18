@@ -16,7 +16,6 @@ Add a visualization tab to the Faux Feelings app that displays a Sankey diagram 
 - Create two tab content containers:
   - `#tab-search` - wraps all existing `<main>` content
   - `#tab-visualization` - new container for the Sankey diagram
-- Add a "selection indicator" element that shows count of selected faux-feelings
 
 **Acceptance Criteria:**
 - [ ] Tab navigation is visible below the header subtitle
