@@ -131,7 +131,7 @@ function renderFeelings() {
     
     allFeelings.forEach(feeling => {
         const chip = document.createElement('div');
-        chip.className = 'chip';
+        chip.className = 'chip non-interactive';
         chip.textContent = feeling;
         feelingsContainer.appendChild(chip);
     });
