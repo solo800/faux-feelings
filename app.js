@@ -5,6 +5,13 @@ const fauxFeelingsContainer = document.getElementById('faux-feelings-container')
 const feelingsContainer = document.getElementById('feelings-container');
 const needsContainer = document.getElementById('needs-container');
 
+// Tab elements
+const tabBtnSearch = document.getElementById('tab-btn-search');
+const tabBtnVisualization = document.getElementById('tab-btn-visualization');
+const tabSearch = document.getElementById('tab-search');
+const tabVisualization = document.getElementById('tab-visualization');
+const selectionBadge = document.getElementById('selection-badge');
+
 // Application state
 let fauxFeelingsData = [];
 let selectedFauxFeelings = new Set();
@@ -21,6 +28,36 @@ async function loadData() {
     } catch (error) {
         console.error('Error loading data:', error);
         fauxFeelingsContainer.innerHTML = '<p style="color: #e53e3e;">Error loading feelings data. Please refresh the page.</p>';
+    }
+}
+
+// Switch between tabs
+function switchTab(tabName) {
+    // Remove active class from all tabs
+    tabBtnSearch.classList.remove('active');
+    tabBtnVisualization.classList.remove('active');
+    tabSearch.classList.remove('active');
+    tabVisualization.classList.remove('active');
+    
+    // Add active class to selected tab
+    if (tabName === 'search') {
+        tabBtnSearch.classList.add('active');
+        tabSearch.classList.add('active');
+    } else if (tabName === 'visualization') {
+        tabBtnVisualization.classList.add('active');
+        tabVisualization.classList.add('active');
+    }
+}
+
+// Update the selection badge count
+function updateSelectionBadge() {
+    const count = selectedFauxFeelings.size;
+    selectionBadge.textContent = count;
+    
+    if (count > 0) {
+        selectionBadge.classList.remove('hidden');
+    } else {
+        selectionBadge.classList.add('hidden');
     }
 }
 
@@ -110,6 +147,7 @@ function toggleFauxFeeling(fauxFeeling) {
     searchFeelings(searchInput.value);
     renderFeelings();
     renderNeeds();
+    updateSelectionBadge();
 }
 
 // Render feelings from selected faux feelings
@@ -184,5 +222,15 @@ clearButton.addEventListener('click', () => {
     searchInput.focus();
 });
 
+// Handle tab button clicks
+tabBtnSearch.addEventListener('click', () => {
+    switchTab('search');
+});
+
+tabBtnVisualization.addEventListener('click', () => {
+    switchTab('visualization');
+});
+
 // Initialize the application
 loadData();
+updateSelectionBadge();
