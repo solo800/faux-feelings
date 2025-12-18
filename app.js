@@ -8,10 +8,10 @@ const clearButton = document.getElementById('clear-button');
 const chipsContainer = document.getElementById('chips-container');
 const selectedDisplay = document.getElementById('selected-display');
 
-// Load data from data.json
+// Load data from faux-feelings-worksheet.json
 async function loadData() {
     try {
-        const response = await fetch('data.json');
+        const response = await fetch('faux-feelings-worksheet.json');
         if (!response.ok) {
             throw new Error(`HTTP error! status: ${response.status}`);
         }
@@ -30,8 +30,10 @@ function filterFeelings(query) {
         return [];
     }
     const lowerQuery = query.toLowerCase();
-    return fauxFeelingsData.filter(feeling => 
+    return fauxFeelingsData.filter(feeling => {
+        console.log(`feeling query is}`, feeling);
         feeling.name.toLowerCase().includes(lowerQuery)
+    }
     );
 }
 
@@ -39,13 +41,13 @@ function filterFeelings(query) {
 function renderChips() {
     const query = searchInput.value;
     const matchingFeelings = filterFeelings(query);
-    
+
     // Clear container
     chipsContainer.innerHTML = '';
-    
+
     // Create a Set to track which feelings we've already rendered
     const renderedIds = new Set();
-    
+
     // First, render selected chips
     selectedChips.forEach(feelingName => {
         const feeling = fauxFeelingsData.find(f => f.name === feelingName);
@@ -55,7 +57,7 @@ function renderChips() {
             renderedIds.add(feeling.name);
         }
     });
-    
+
     // Then, render matching unselected chips
     matchingFeelings.forEach(feeling => {
         if (!renderedIds.has(feeling.name)) {
@@ -63,7 +65,7 @@ function renderChips() {
             chipsContainer.appendChild(chip);
         }
     });
-    
+
     // Show message if no results and no selected chips
     if (chipsContainer.children.length === 0) {
         if (query.trim()) {
@@ -80,11 +82,11 @@ function createChip(feeling, isSelected) {
     chip.className = isSelected ? 'chip selected' : 'chip';
     chip.textContent = feeling.name;
     chip.dataset.feelingName = feeling.name;
-    
+
     chip.addEventListener('click', () => {
         toggleChipSelection(feeling.name);
     });
-    
+
     return chip;
 }
 
@@ -105,20 +107,20 @@ function updateNeedsDisplay() {
         selectedDisplay.innerHTML = '';
         return;
     }
-    
+
     // Collect all unique needs from selected feelings
     const allNeeds = new Set();
-    
+
     selectedChips.forEach(feelingName => {
         const feeling = fauxFeelingsData.find(f => f.name === feelingName);
         if (feeling && feeling.needs) {
             feeling.needs.forEach(need => allNeeds.add(need));
         }
     });
-    
+
     // Build the display HTML
     let html = '<div class="needs-title">Underlying Needs:</div>';
-    
+
     if (allNeeds.size > 0) {
         html += '<div class="needs-list">';
         allNeeds.forEach(need => {
@@ -128,7 +130,7 @@ function updateNeedsDisplay() {
     } else {
         html += '<p style="color: #a0aec0; font-style: italic;">No needs data available for selected feelings.</p>';
     }
-    
+
     selectedDisplay.innerHTML = html;
 }
 
