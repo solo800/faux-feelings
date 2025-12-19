@@ -4,6 +4,15 @@ const clearButton = document.getElementById('clear-button');
 const fauxFeelingsContainer = document.getElementById('faux-feelings-container');
 const feelingsContainer = document.getElementById('feelings-container');
 const needsContainer = document.getElementById('needs-container');
+const modal = document.getElementById('feeling-modal');
+const modalMessage = document.getElementById('modal-message');
+const modalFauxFeelingsContainer = document.getElementById('modal-faux-feelings');
+const modalClose = document.querySelector('.modal-close');
+
+// Visualization tab elements
+const vizFauxFeelingsContainer = document.getElementById('viz-faux-feelings-container');
+const vizFeelingsContainer = document.getElementById('viz-feelings-container');
+const vizNeedsContainer = document.getElementById('viz-needs-container');
 
 // Tab elements
 const tabBtnSearch = document.getElementById('tab-btn-search');
@@ -15,6 +24,9 @@ const selectionBadge = document.getElementById('selection-badge');
 // Application state
 let fauxFeelingsData = [];
 let selectedFauxFeelings = new Set();
+let selectedFeelings = new Set(); // User-selected feelings
+let selectedNeeds = new Set(); // User-selected needs
+let unselectedMatchingFauxFeelings = new Set(); // Unselected faux feelings that match search
 let feelingSynonyms = {};
 
 // Load data from faux-feelings-worksheet.json
@@ -69,12 +81,80 @@ function switchTab(tabName) {
 function updateSelectionBadge() {
     const count = selectedFauxFeelings.size;
     selectionBadge.textContent = count;
-    
+
     if (count > 0) {
         selectionBadge.classList.remove('hidden');
     } else {
         selectionBadge.classList.add('hidden');
     }
+}
+
+// Check if visualization should be enabled
+function checkVisualizationEnabled() {
+    const hasFauxFeeling = selectedFauxFeelings.size > 0;
+
+    if (hasFauxFeeling) {
+        tabBtnVisualization.disabled = false;
+        tabBtnVisualization.classList.remove('disabled');
+    } else {
+        tabBtnVisualization.disabled = true;
+        tabBtnVisualization.classList.add('disabled');
+    }
+}
+
+// Check if a feeling matches any selected faux feeling (case-insensitive)
+function doesFeelingMatchFauxFeeling(feeling) {
+    const feelingLower = feeling.toLowerCase();
+    return Array.from(selectedFauxFeelings).some(fauxFeeling =>
+        fauxFeeling.toLowerCase() === feelingLower
+    );
+}
+
+// Get all unique feelings from data and synonyms
+function getAllFeelings() {
+    const feelings = new Set();
+
+    // Add all feelings from faux feelings data
+    fauxFeelingsData.forEach(entry => {
+        if (entry.feelings) {
+            entry.feelings.forEach(feeling => feelings.add(feeling.toLowerCase()));
+        }
+    });
+
+    // Add all canonical words and synonyms
+    Object.entries(feelingSynonyms).forEach(([canonical, synonyms]) => {
+        feelings.add(canonical.toLowerCase());
+        synonyms.forEach(syn => feelings.add(syn.toLowerCase()));
+    });
+
+    return Array.from(feelings);
+}
+
+// Find which canonical word a feeling maps to (if any)
+function getCanonicalFeeling(feeling) {
+    const lowerFeeling = feeling.toLowerCase();
+
+    // Check if it's already a canonical word
+    if (feelingSynonyms[lowerFeeling]) {
+        return lowerFeeling;
+    }
+
+    // Check if it's a synonym of any canonical word
+    for (const [canonical, synonyms] of Object.entries(feelingSynonyms)) {
+        if (synonyms.map(s => s.toLowerCase()).includes(lowerFeeling)) {
+            return canonical;
+        }
+    }
+
+    return null;
+}
+
+// Get all synonyms for a feeling (including the canonical word)
+function getSynonymsForFeeling(feeling) {
+    const canonical = getCanonicalFeeling(feeling);
+    if (!canonical) return [feeling];
+
+    return [canonical, ...feelingSynonyms[canonical]].map(f => f.toLowerCase());
 }
 
 // Get expanded search terms using synonyms
@@ -93,173 +173,307 @@ function getExpandedTerms(query) {
     return [...new Set(terms)]; // deduplicate
 }
 
-// Search through faux feelings data
+// Search and rank feelings based on query
+function searchAndRankFeelings(query) {
+    if (!query.trim()) {
+        return [];
+    }
+
+    const lowerQuery = query.toLowerCase();
+    const allFeelings = getAllFeelings();
+
+    // Track feelings by rank (1 = best match, 4 = weakest match)
+    const ranked = {
+        1: new Set(), // Prefix matches
+        2: new Set(), // Synonyms of prefix matches
+        3: new Set(), // Substring matches
+        4: new Set()  // Synonyms of substring matches
+    };
+
+    // Find prefix and substring matches
+    const prefixMatches = [];
+    const substringMatches = [];
+
+    allFeelings.forEach(feeling => {
+        if (feeling.startsWith(lowerQuery)) {
+            prefixMatches.push(feeling);
+            ranked[1].add(feeling);
+        } else if (feeling.includes(lowerQuery)) {
+            substringMatches.push(feeling);
+            ranked[3].add(feeling);
+        }
+    });
+
+    // Add synonyms of prefix matches
+    prefixMatches.forEach(feeling => {
+        const synonyms = getSynonymsForFeeling(feeling);
+        synonyms.forEach(syn => {
+            if (!ranked[1].has(syn)) {
+                ranked[2].add(syn);
+            }
+        });
+    });
+
+    // Add synonyms of substring matches
+    substringMatches.forEach(feeling => {
+        const synonyms = getSynonymsForFeeling(feeling);
+        synonyms.forEach(syn => {
+            if (!ranked[1].has(syn) && !ranked[2].has(syn) && !ranked[3].has(syn)) {
+                ranked[4].add(syn);
+            }
+        });
+    });
+
+    // Combine all ranked results in order
+    const results = [
+        ...Array.from(ranked[1]),
+        ...Array.from(ranked[2]),
+        ...Array.from(ranked[3]),
+        ...Array.from(ranked[4])
+    ];
+
+    return results;
+}
+
+// Search for both feelings and faux feelings based on query
 function searchFeelings(query) {
     if (!query.trim()) {
-        renderFauxFeelings([]);
+        // Clear search results
+        renderFeelingsResults([]);
+        unselectedMatchingFauxFeelings.clear();
+        renderFauxFeelingsDisplay();
         return;
     }
 
     const lowerQuery = query.toLowerCase();
-    let matchingEntries = [];
 
-    // First pass: direct match (current behavior)
-    fauxFeelingsData.forEach(entry => {
-        // Check if query matches fauxFeeling
-        if (entry.fauxFeeling.toLowerCase().includes(lowerQuery)) {
-            matchingEntries.push(entry);
-            return;
-        }
+    // Search for matching feelings
+    const matchingFeelings = searchAndRankFeelings(query);
+    console.log('Matching feelings for "' + query + '":', matchingFeelings);
 
-        // Check if query matches any feeling in the feelings array
-        if (entry.feelings && entry.feelings.some(feeling => feeling.toLowerCase().includes(lowerQuery))) {
-            matchingEntries.push(entry);
-        }
-    });
+    // Search for direct faux feeling matches
+    const matchingFauxFeelings = fauxFeelingsData.filter(entry =>
+        entry.fauxFeeling.toLowerCase().includes(lowerQuery)
+    );
 
-    // Second pass: synonym expansion (if no direct matches)
-    if (matchingEntries.length === 0) {
-        const expandedTerms = getExpandedTerms(lowerQuery);
-
-        fauxFeelingsData.forEach(entry => {
-            // Check if any expanded term matches fauxFeeling
-            if (expandedTerms.some(term => entry.fauxFeeling.toLowerCase().includes(term))) {
-                matchingEntries.push(entry);
-                return;
-            }
-
-            // Check if any expanded term matches any feeling
-            if (entry.feelings && entry.feelings.some(feeling =>
-                expandedTerms.some(term => feeling.toLowerCase().includes(term)))) {
-                matchingEntries.push(entry);
-            }
-        });
-    }
-
-    console.log('Matching entries for "' + query + '":', matchingEntries);
-    renderFauxFeelings(matchingEntries);
-}
-
-// Render faux feelings chips
-function renderFauxFeelings(matchingEntries) {
-    fauxFeelingsContainer.innerHTML = '';
-    
-    // Create a Set to track which faux feelings we've already rendered
-    const renderedFauxFeelings = new Set();
-    
-    // First, render selected faux feelings (they always show)
-    selectedFauxFeelings.forEach(fauxFeeling => {
-        const entry = fauxFeelingsData.find(e => e.fauxFeeling === fauxFeeling);
-        if (entry) {
-            const chip = document.createElement('div');
-            chip.className = 'chip selected';
-            chip.textContent = entry.fauxFeeling;
-            chip.dataset.fauxFeeling = entry.fauxFeeling;
-            
-            chip.addEventListener('click', () => {
-                toggleFauxFeeling(entry.fauxFeeling);
-            });
-            
-            fauxFeelingsContainer.appendChild(chip);
-            renderedFauxFeelings.add(entry.fauxFeeling);
+    // Update unselected matching faux feelings
+    unselectedMatchingFauxFeelings.clear();
+    matchingFauxFeelings.forEach(entry => {
+        if (!selectedFauxFeelings.has(entry.fauxFeeling)) {
+            unselectedMatchingFauxFeelings.add(entry.fauxFeeling);
         }
     });
-    
-    // Then, render matching unselected faux feelings
-    matchingEntries.forEach(entry => {
-        if (!renderedFauxFeelings.has(entry.fauxFeeling)) {
-            const chip = document.createElement('div');
-            chip.className = 'chip';
-            chip.textContent = entry.fauxFeeling;
-            chip.dataset.fauxFeeling = entry.fauxFeeling;
-            
-            chip.addEventListener('click', () => {
-                toggleFauxFeeling(entry.fauxFeeling);
-            });
-            
-            fauxFeelingsContainer.appendChild(chip);
-        }
-    });
-    
-    // Show placeholder if nothing to display
-    if (fauxFeelingsContainer.children.length === 0) {
-        // Empty container will show CSS ::before placeholder
-    }
+
+    console.log('Matching faux feelings for "' + query + '":', Array.from(unselectedMatchingFauxFeelings));
+
+    // Render both
+    renderFeelingsResults(matchingFeelings);
+    renderFauxFeelingsDisplay();
 }
 
-// Toggle faux feeling selection
-function toggleFauxFeeling(fauxFeeling) {
-    if (selectedFauxFeelings.has(fauxFeeling)) {
-        selectedFauxFeelings.delete(fauxFeeling);
-    } else {
-        selectedFauxFeelings.add(fauxFeeling);
-    }
-
-    // Re-render all sections
-    searchFeelings(searchInput.value);
-    renderFeelings();
-    renderNeeds();
-    updateSelectionBadge();
-
-    // Update visualization if on visualization tab
-    if (tabVisualization.classList.contains('active')) {
-        renderSankey();
-    }
-}
-
-// Render feelings from selected faux feelings
-function renderFeelings() {
+// Render feelings search results as chips in feelings-container
+function renderFeelingsResults(feelings) {
     feelingsContainer.innerHTML = '';
-    
-    if (selectedFauxFeelings.size === 0) {
+
+    if (feelings.length === 0) {
         return;
     }
-    
-    const allFeelings = new Set();
-    
-    selectedFauxFeelings.forEach(fauxFeeling => {
-        const entry = fauxFeelingsData.find(e => e.fauxFeeling === fauxFeeling);
-        if (entry && entry.feelings) {
-            entry.feelings.forEach(feeling => allFeelings.add(feeling));
-        }
-    });
-    
-    allFeelings.forEach(feeling => {
+
+    // Filter out feelings that match selected faux feelings
+    const filteredFeelings = feelings.filter(feeling => !doesFeelingMatchFauxFeeling(feeling));
+
+    if (filteredFeelings.length === 0) {
+        return;
+    }
+
+    filteredFeelings.forEach(feeling => {
         const chip = document.createElement('div');
-        chip.className = 'chip non-interactive';
+        chip.className = 'chip';
         chip.textContent = feeling;
+        chip.dataset.feeling = feeling;
+
+        // Just show modal, don't track selection in search tab
+        chip.addEventListener('click', () => {
+            showFeelingModalForSelection(feeling);
+        });
+
         feelingsContainer.appendChild(chip);
     });
 }
 
-// Render needs from selected faux feelings
+// Show modal for feeling selection (no tracking in search tab)
+function showFeelingModalForSelection(feeling) {
+    // Get all synonyms for the selected feeling
+    const synonyms = getSynonymsForFeeling(feeling);
+
+    // Find all faux feelings that include any synonym of the selected feeling
+    const matchingFauxFeelings = fauxFeelingsData.filter(entry => {
+        if (!entry.feelings) return false;
+        return entry.feelings.some(f =>
+            synonyms.includes(f.toLowerCase())
+        );
+    });
+
+    // Show modal with options
+    showFeelingModal(feeling, matchingFauxFeelings);
+}
+
+// Show modal dialog for selecting faux feelings
+function showFeelingModal(feeling, fauxFeelingEntries) {
+    // Set modal message
+    modalMessage.textContent = `Great start, "${feeling}" is real. Now let's trace it back to a faux feeling. Which of these resonates most with you?`;
+
+    // Clear and populate modal faux feelings
+    modalFauxFeelingsContainer.innerHTML = '';
+
+    // Filter out entries where the faux feeling name matches the selected feeling
+    const feelingLower = feeling.toLowerCase();
+    const filteredEntries = fauxFeelingEntries.filter(entry =>
+        entry.fauxFeeling.toLowerCase() !== feelingLower
+    );
+
+    filteredEntries.forEach(entry => {
+        const chip = document.createElement('div');
+        chip.className = 'chip';
+
+        // Highlight if already selected
+        if (selectedFauxFeelings.has(entry.fauxFeeling)) {
+            chip.classList.add('selected');
+        }
+
+        chip.textContent = entry.fauxFeeling;
+        chip.dataset.fauxFeeling = entry.fauxFeeling;
+
+        chip.addEventListener('click', () => {
+            toggleFauxFeeling(entry.fauxFeeling);
+            // Update chip appearance in modal
+            chip.classList.toggle('selected');
+        });
+
+        modalFauxFeelingsContainer.appendChild(chip);
+    });
+
+    // Show modal
+    modal.classList.remove('hidden');
+}
+
+// Close modal
+function closeModal() {
+    modal.classList.add('hidden');
+}
+
+// Render faux feelings display (selected + unselected matches)
+function renderFauxFeelingsDisplay() {
+    fauxFeelingsContainer.innerHTML = '';
+
+    // First, render selected faux feelings
+    selectedFauxFeelings.forEach(fauxFeeling => {
+        const chip = document.createElement('div');
+        chip.className = 'chip selected';
+        chip.textContent = fauxFeeling;
+        chip.dataset.fauxFeeling = fauxFeeling;
+
+        chip.addEventListener('click', () => {
+            toggleFauxFeeling(fauxFeeling);
+        });
+
+        fauxFeelingsContainer.appendChild(chip);
+    });
+
+    // Then, render unselected matching faux feelings
+    unselectedMatchingFauxFeelings.forEach(fauxFeeling => {
+        const chip = document.createElement('div');
+        chip.className = 'chip';
+        chip.textContent = fauxFeeling;
+        chip.dataset.fauxFeeling = fauxFeeling;
+
+        chip.addEventListener('click', () => {
+            toggleFauxFeeling(fauxFeeling);
+        });
+
+        fauxFeelingsContainer.appendChild(chip);
+    });
+}
+
+// Toggle faux feeling selection
+function toggleFauxFeeling(fauxFeeling) {
+    const wasSelected = selectedFauxFeelings.has(fauxFeeling);
+
+    if (wasSelected) {
+        selectedFauxFeelings.delete(fauxFeeling);
+        // If it was a match from search, add it back to unselected matches
+        if (searchInput.value.trim()) {
+            const lowerQuery = searchInput.value.toLowerCase();
+            const entry = fauxFeelingsData.find(e => e.fauxFeeling === fauxFeeling);
+            if (entry && entry.fauxFeeling.toLowerCase().includes(lowerQuery)) {
+                unselectedMatchingFauxFeelings.add(fauxFeeling);
+            }
+        }
+    } else {
+        selectedFauxFeelings.add(fauxFeeling);
+        // Remove from unselected matches if it was there
+        unselectedMatchingFauxFeelings.delete(fauxFeeling);
+
+        // If this faux feeling name matches any selected feelings, deselect those feelings
+        const fauxFeelingLower = fauxFeeling.toLowerCase();
+        Array.from(selectedFeelings).forEach(feeling => {
+            if (feeling.toLowerCase() === fauxFeelingLower) {
+                selectedFeelings.delete(feeling);
+            }
+        });
+    }
+
+    // Re-render faux feelings display
+    renderFauxFeelingsDisplay();
+
+    // Re-render feelings to apply filter (if search is active)
+    if (searchInput.value.trim()) {
+        const matchingFeelings = searchAndRankFeelings(searchInput.value);
+        renderFeelingsResults(matchingFeelings);
+    }
+
+    // Render needs from all selected faux feelings
+    renderNeeds();
+    updateSelectionBadge();
+    checkVisualizationEnabled();
+
+    // Update visualization if on visualization tab
+    if (tabVisualization.classList.contains('active')) {
+        renderVisualizationControls();
+        renderSankey();
+    }
+}
+
+// Render needs from selected faux feelings as read-only chips
 function renderNeeds() {
     needsContainer.innerHTML = '';
-    
+
     if (selectedFauxFeelings.size === 0) {
         return;
     }
-    
+
     const allNeeds = new Set();
-    
+
     selectedFauxFeelings.forEach(fauxFeeling => {
         const entry = fauxFeelingsData.find(e => e.fauxFeeling === fauxFeeling);
         if (entry && entry.needs) {
             entry.needs.forEach(need => allNeeds.add(need));
         }
     });
-    
+
     if (allNeeds.size > 0) {
         const needsList = document.createElement('div');
         needsList.className = 'needs-list';
-        
+
         allNeeds.forEach(need => {
-            const needTag = document.createElement('span');
-            needTag.className = 'need-tag';
-            needTag.textContent = need;
-            needsList.appendChild(needTag);
+            const needChip = document.createElement('div');
+            needChip.className = 'chip non-interactive';
+            needChip.textContent = need;
+            needChip.dataset.need = need;
+
+            needsList.appendChild(needChip);
         });
-        
+
         needsContainer.appendChild(needsList);
     }
 }
@@ -268,21 +482,180 @@ function renderNeeds() {
 searchInput.addEventListener('input', (e) => {
     const hasValue = e.target.value.length > 0;
     clearButton.classList.toggle('visible', hasValue);
-    searchFeelings(e.target.value);
+
+    // When user starts typing, clear non-selected items
+    if (hasValue) {
+        // Search will update unselectedMatchingFauxFeelings
+        searchFeelings(e.target.value);
+    } else {
+        // Clear everything when input is empty
+        renderFeelingsResults([]);
+        unselectedMatchingFauxFeelings.clear();
+        renderFauxFeelingsDisplay();
+    }
 });
 
 // Handle clear button
 clearButton.addEventListener('click', () => {
     searchInput.value = '';
     clearButton.classList.remove('visible');
-    searchFeelings('');
+    renderFeelingsResults([]);
+    unselectedMatchingFauxFeelings.clear();
+    renderFauxFeelingsDisplay();
     searchInput.focus();
 });
 
-// Build Sankey diagram data from selected faux feelings
-function buildSankeyData() {
-    // Return empty structure if nothing selected
+// Handle modal close button
+modalClose.addEventListener('click', closeModal);
+
+// Handle clicking outside modal to close
+modal.addEventListener('click', (e) => {
+    if (e.target === modal) {
+        closeModal();
+    }
+});
+
+// Render visualization controls in viz tab
+function renderVisualizationControls() {
+    renderVizFauxFeelings();
+    renderVizFeelings();
+    renderVizNeeds();
+}
+
+// Render selected faux feelings in viz tab (read-only display)
+function renderVizFauxFeelings() {
+    vizFauxFeelingsContainer.innerHTML = '';
+
     if (selectedFauxFeelings.size === 0) {
+        vizFauxFeelingsContainer.innerHTML = '<p style="color: #a0aec0; font-style: italic;">No faux feelings selected</p>';
+        return;
+    }
+
+    selectedFauxFeelings.forEach(fauxFeeling => {
+        const chip = document.createElement('div');
+        chip.className = 'chip non-interactive selected';
+        chip.textContent = fauxFeeling;
+        vizFauxFeelingsContainer.appendChild(chip);
+    });
+}
+
+// Render available feelings for selection in viz tab
+function renderVizFeelings() {
+    vizFeelingsContainer.innerHTML = '';
+
+    if (selectedFauxFeelings.size === 0) {
+        return;
+    }
+
+    const availableFeelings = new Set();
+
+    // Collect all feelings from selected faux feelings
+    selectedFauxFeelings.forEach(fauxFeeling => {
+        const entry = fauxFeelingsData.find(e => e.fauxFeeling === fauxFeeling);
+        if (entry && entry.feelings) {
+            entry.feelings.forEach(feeling => {
+                // Skip if feeling matches a faux feeling name
+                if (!doesFeelingMatchFauxFeeling(feeling)) {
+                    availableFeelings.add(feeling);
+                }
+            });
+        }
+    });
+
+    if (availableFeelings.size === 0) {
+        vizFeelingsContainer.innerHTML = '<p style="color: #a0aec0; font-style: italic;">No feelings available</p>';
+        return;
+    }
+
+    Array.from(availableFeelings).sort().forEach(feeling => {
+        const chip = document.createElement('div');
+        chip.className = 'chip';
+
+        if (selectedFeelings.has(feeling)) {
+            chip.classList.add('selected');
+        }
+
+        chip.textContent = feeling;
+        chip.dataset.feeling = feeling;
+
+        chip.addEventListener('click', () => {
+            toggleVizFeeling(feeling);
+        });
+
+        vizFeelingsContainer.appendChild(chip);
+    });
+}
+
+// Render available needs for selection in viz tab
+function renderVizNeeds() {
+    vizNeedsContainer.innerHTML = '';
+
+    if (selectedFauxFeelings.size === 0) {
+        return;
+    }
+
+    const availableNeeds = new Set();
+
+    // Collect all needs from selected faux feelings
+    selectedFauxFeelings.forEach(fauxFeeling => {
+        const entry = fauxFeelingsData.find(e => e.fauxFeeling === fauxFeeling);
+        if (entry && entry.needs) {
+            entry.needs.forEach(need => availableNeeds.add(need));
+        }
+    });
+
+    if (availableNeeds.size === 0) {
+        vizNeedsContainer.innerHTML = '<p style="color: #a0aec0; font-style: italic;">No needs available</p>';
+        return;
+    }
+
+    Array.from(availableNeeds).sort().forEach(need => {
+        const chip = document.createElement('div');
+        chip.className = 'chip';
+
+        if (selectedNeeds.has(need)) {
+            chip.classList.add('selected');
+        }
+
+        chip.textContent = need;
+        chip.dataset.need = need;
+
+        chip.addEventListener('click', () => {
+            toggleVizNeed(need);
+        });
+
+        vizNeedsContainer.appendChild(chip);
+    });
+}
+
+// Toggle feeling selection in viz tab
+function toggleVizFeeling(feeling) {
+    if (selectedFeelings.has(feeling)) {
+        selectedFeelings.delete(feeling);
+    } else {
+        selectedFeelings.add(feeling);
+    }
+
+    renderVizFeelings();
+    renderSankey();
+}
+
+// Toggle need selection in viz tab
+function toggleVizNeed(need) {
+    if (selectedNeeds.has(need)) {
+        selectedNeeds.delete(need);
+    } else {
+        selectedNeeds.add(need);
+    }
+
+    renderVizNeeds();
+    renderSankey();
+}
+
+// Build Sankey diagram data from selected items only
+function buildSankeyData() {
+    // Return empty structure if not all three types are selected
+    if (selectedFauxFeelings.size === 0 || selectedFeelings.size === 0 || selectedNeeds.size === 0) {
         return { nodes: [], links: [] };
     }
 
@@ -302,9 +675,22 @@ function buildSankeyData() {
             nodeIds.add(fauxId);
         }
 
-        // Process feelings
+        // Process only selected feelings that are in this entry
         if (entry.feelings) {
             entry.feelings.forEach(feeling => {
+                const feelingLower = feeling.toLowerCase();
+
+                // Skip if this feeling matches any selected faux feeling
+                if (doesFeelingMatchFauxFeeling(feeling)) return;
+
+                // Only include if this feeling (or its synonyms) is selected
+                const synonyms = getSynonymsForFeeling(feelingLower);
+                const isSelected = Array.from(selectedFeelings).some(selectedFeeling =>
+                    synonyms.includes(selectedFeeling.toLowerCase())
+                );
+
+                if (!isSelected) return;
+
                 // Add feeling node
                 const feelingId = `feeling-${feeling}`;
                 if (!nodeIds.has(feelingId)) {
@@ -312,13 +698,16 @@ function buildSankeyData() {
                     nodeIds.add(feelingId);
                 }
 
-                // Add link from faux feeling to feeling (use ||| as delimiter)
+                // Add link from faux feeling to feeling
                 const linkKey1 = `${fauxId}|||${feelingId}`;
                 linkMap.set(linkKey1, (linkMap.get(linkKey1) || 0) + 1);
 
-                // Process needs - link from this feeling to all needs
+                // Process only selected needs
                 if (entry.needs) {
                     entry.needs.forEach(need => {
+                        // Only include if this need is selected
+                        if (!selectedNeeds.has(need)) return;
+
                         // Add need node
                         const needId = `need-${need}`;
                         if (!nodeIds.has(needId)) {
@@ -482,7 +871,12 @@ tabBtnSearch.addEventListener('click', () => {
 });
 
 tabBtnVisualization.addEventListener('click', () => {
+    // Don't switch if button is disabled
+    if (tabBtnVisualization.disabled) {
+        return;
+    }
     switchTab('visualization');
+    renderVisualizationControls();
     renderSankey();
 });
 
@@ -501,3 +895,4 @@ window.addEventListener('resize', () => {
 loadData();
 loadSynonyms();
 updateSelectionBadge();
+checkVisualizationEnabled(); // Disable visualization button initially
