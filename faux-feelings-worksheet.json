@@ -1,272 +1,748 @@
 [
   {
     "fauxFeeling": "Abandoned",
-    "feelings": ["Terrified", "hurt", "bewildered", "sad", "frightened", "lonely"],
-    "needs": ["Nurturing", "connection", "belonging", "support", "caring"]
+    "feelings": [
+      "terrified",
+      "hurt",
+      "bewildered",
+      "sad",
+      "frightened",
+      "lonely"
+    ],
+    "needs": [
+      "nurturing",
+      "connection",
+      "belonging",
+      "support",
+      "caring"
+    ]
   },
   {
     "fauxFeeling": "Abused",
-    "feelings": ["Angry", "frustrated", "frightened"],
-    "needs": ["Caring", "nurturing", "support", "well-being"]
+    "feelings": [
+      "angry",
+      "frustrated",
+      "frightened"
+    ],
+    "needs": [
+      "caring",
+      "nurturing",
+      "support",
+      "well-being"
+    ]
   },
   {
     "fauxFeeling": "(Not) Accepted",
-    "feelings": ["Upset", "scared", "lonely"],
-    "needs": ["Inclusion", "connection", "community", "belonging"]
+    "feelings": [
+      "upset",
+      "scared",
+      "lonely"
+    ],
+    "needs": [
+      "inclusion",
+      "connection",
+      "community",
+      "belonging"
+    ]
   },
   {
     "fauxFeeling": "Attacked",
-    "feelings": ["Scared", "angry"],
-    "needs": ["Safety"]
+    "feelings": [
+      "scared",
+      "angry"
+    ],
+    "needs": [
+      "safety"
+    ]
   },
   {
     "fauxFeeling": "Belittled",
-    "feelings": ["Angry", "frustrated", "tense", "distressed"],
-    "needs": ["Respect", "autonomy", "to be seen", "acknowledgment"]
+    "feelings": [
+      "angry",
+      "frustrated",
+      "tense",
+      "distressed"
+    ],
+    "needs": [
+      "respect",
+      "autonomy",
+      "to be seen",
+      "acknowledgment"
+    ]
   },
   {
     "fauxFeeling": "Betrayed",
-    "feelings": ["Angry", "hurt", "disappointed", "enraged"],
-    "needs": ["Trust", "dependability", "honesty", "honor"]
+    "feelings": [
+      "angry",
+      "hurt",
+      "disappointed",
+      "enraged"
+    ],
+    "needs": [
+      "trust",
+      "dependability",
+      "honesty",
+      "honor"
+    ]
   },
   {
     "fauxFeeling": "Blamed",
-    "feelings": ["Angry", "scared", "confused", "antagonistic", "hostile"],
-    "needs": ["Accountability", "causality", "fairness", "justice"]
+    "feelings": [
+      "angry",
+      "scared",
+      "confused",
+      "antagonistic",
+      "hostile"
+    ],
+    "needs": [
+      "accountability",
+      "causality",
+      "fairness",
+      "justice"
+    ]
   },
   {
     "fauxFeeling": "Bullied",
-    "feelings": ["Angry", "scared", "pressured"],
-    "needs": ["Autonomy", "choice", "safety", "consideration"]
+    "feelings": [
+      "angry",
+      "scared",
+      "pressured"
+    ],
+    "needs": [
+      "autonomy",
+      "choice",
+      "safety",
+      "consideration"
+    ]
   },
   {
     "fauxFeeling": "Cheated",
-    "feelings": ["Resentful", "hurt", "angry"],
-    "needs": ["Honesty", "fairness", "justice", "trust", "reliability"]
+    "feelings": [
+      "resentful",
+      "hurt",
+      "angry"
+    ],
+    "needs": [
+      "honesty",
+      "fairness",
+      "justice",
+      "trust",
+      "reliability"
+    ]
   },
   {
     "fauxFeeling": "Coerced",
-    "feelings": ["Angry", "frustrated", "frightened", "thwarted", "scared"],
-    "needs": ["Choice", "autonomy", "freedom"]
+    "feelings": [
+      "angry",
+      "frustrated",
+      "frightened",
+      "thwarted",
+      "scared"
+    ],
+    "needs": [
+      "choice",
+      "autonomy",
+      "freedom"
+    ]
   },
   {
     "fauxFeeling": "Cornered",
-    "feelings": ["Angry", "scared", "anxious", "thwarted"],
-    "needs": ["Autonomy", "freedom"]
+    "feelings": [
+      "angry",
+      "scared",
+      "anxious",
+      "thwarted"
+    ],
+    "needs": [
+      "autonomy",
+      "freedom"
+    ]
   },
   {
     "fauxFeeling": "Criticized",
-    "feelings": ["In pain", "scared", "anxious", "humiliated"],
-    "needs": ["Understanding", "acknowledgement", "recognition"]
+    "feelings": [
+      "in pain",
+      "scared",
+      "anxious",
+      "humiliated"
+    ],
+    "needs": [
+      "understanding",
+      "acknowledgement",
+      "recognition"
+    ]
   },
   {
     "fauxFeeling": "Discounted",
-    "feelings": ["Hurt", "angry", "embarrassed", "frustrated"],
-    "needs": ["To matter", "acknowledgement", "inclusion"]
+    "feelings": [
+      "hurt",
+      "angry",
+      "embarrassed",
+      "frustrated"
+    ],
+    "needs": [
+      "to matter",
+      "acknowledgement",
+      "inclusion"
+    ]
   },
   {
     "fauxFeeling": "Disliked",
-    "feelings": ["Sad", "lonely", "hurt"],
-    "needs": ["Connection", "appreciation", "understanding"]
+    "feelings": [
+      "sad",
+      "lonely",
+      "hurt"
+    ],
+    "needs": [
+      "connection",
+      "appreciation",
+      "understanding"
+    ]
   },
   {
     "fauxFeeling": "Distrusted",
-    "feelings": ["Sad", "frustrated"],
-    "needs": ["Trust", "honesty"]
+    "feelings": [
+      "sad",
+      "frustrated"
+    ],
+    "needs": [
+      "trust",
+      "honesty"
+    ]
   },
   {
     "fauxFeeling": "Dumped on",
-    "feelings": ["Angry", "overwhelmed"],
-    "needs": ["Respect", "consideration"]
+    "feelings": [
+      "angry",
+      "overwhelmed"
+    ],
+    "needs": [
+      "respect",
+      "consideration"
+    ]
   },
   {
     "fauxFeeling": "Harassed",
-    "feelings": ["Angry", "frustrated", "pressured", "frightened"],
-    "needs": ["Respect", "space", "consideration", "peace"]
+    "feelings": [
+      "angry",
+      "frustrated",
+      "pressured",
+      "frightened"
+    ],
+    "needs": [
+      "respect",
+      "space",
+      "consideration",
+      "peace"
+    ]
   },
   {
     "fauxFeeling": "Hassled",
-    "feelings": ["Irritated", "distressed", "angry", "frustrated"],
-    "needs": ["Serenity", "autonomy", "calm", "space"]
+    "feelings": [
+      "irritated",
+      "distressed",
+      "angry",
+      "frustrated"
+    ],
+    "needs": [
+      "serenity",
+      "autonomy",
+      "calm",
+      "space"
+    ]
   },
   {
     "fauxFeeling": "Ignored",
-    "feelings": ["Lonely", "scared", "hurt", "sad", "embarrassed"],
-    "needs": ["Connection", "belonging", "inclusion", "community"]
+    "feelings": [
+      "lonely",
+      "scared",
+      "hurt",
+      "sad",
+      "embarrassed"
+    ],
+    "needs": [
+      "connection",
+      "belonging",
+      "inclusion",
+      "community"
+    ]
   },
   {
     "fauxFeeling": "Insulted",
-    "feelings": ["Angry", "embarrassed"],
-    "needs": ["Respect", "consideration", "acknowledgement"]
+    "feelings": [
+      "angry",
+      "embarrassed"
+    ],
+    "needs": [
+      "respect",
+      "consideration",
+      "acknowledgement"
+    ]
   },
   {
     "fauxFeeling": "Interrupted",
-    "feelings": ["Angry", "frustrated", "resentful", "hurt"],
-    "needs": ["Respect", "to be heard", "consideration"]
+    "feelings": [
+      "angry",
+      "frustrated",
+      "resentful",
+      "hurt"
+    ],
+    "needs": [
+      "respect",
+      "to be heard",
+      "consideration"
+    ]
   },
   {
     "fauxFeeling": "Intimidated",
-    "feelings": ["Scared", "anxious"],
-    "needs": ["Safety", "equality", "empowerment"]
+    "feelings": [
+      "scared",
+      "anxious"
+    ],
+    "needs": [
+      "safety",
+      "equality",
+      "empowerment"
+    ]
   },
   {
     "fauxFeeling": "Invalidated",
-    "feelings": ["Angry", "hurt", "resentful"],
-    "needs": ["Appreciation", "respect", "acknowledgment", "recognition"]
+    "feelings": [
+      "angry",
+      "hurt",
+      "resentful"
+    ],
+    "needs": [
+      "appreciation",
+      "respect",
+      "acknowledgment",
+      "recognition"
+    ]
   },
   {
     "fauxFeeling": "Invisible",
-    "feelings": ["Sad", "angry", "lonely", "scared"],
-    "needs": ["To be seen and heard", "inclusion", "belonging"]
+    "feelings": [
+      "sad",
+      "angry",
+      "lonely",
+      "scared"
+    ],
+    "needs": [
+      "to be seen and heard",
+      "inclusion",
+      "belonging"
+    ]
   },
   {
     "fauxFeeling": "Isolated",
-    "feelings": ["Lonely", "afraid", "scared"],
-    "needs": ["Community", "inclusion", "belonging", "contribution"]
+    "feelings": [
+      "lonely",
+      "afraid",
+      "scared"
+    ],
+    "needs": [
+      "community",
+      "inclusion",
+      "belonging",
+      "contribution"
+    ]
   },
   {
     "fauxFeeling": "Left Out",
-    "feelings": ["Sad", "lonely", "anxious"],
-    "needs": ["Inclusion", "belonging", "community", "connection"]
+    "feelings": [
+      "sad",
+      "lonely",
+      "anxious"
+    ],
+    "needs": [
+      "inclusion",
+      "belonging",
+      "community",
+      "connection"
+    ]
   },
   {
     "fauxFeeling": "Let down",
-    "feelings": ["Sad", "disappointed", "frightened"],
-    "needs": ["Consistency", "trust", "dependability"]
+    "feelings": [
+      "sad",
+      "disappointed",
+      "frightened"
+    ],
+    "needs": [
+      "consistency",
+      "trust",
+      "dependability"
+    ]
   },
   {
     "fauxFeeling": "Manipulated",
-    "feelings": ["Angry", "scared", "powerless", "thwarted", "frustrated"],
-    "needs": ["Autonomy", "empowerment", "trust", "equality", "freedom"]
+    "feelings": [
+      "angry",
+      "scared",
+      "powerless",
+      "thwarted",
+      "frustrated"
+    ],
+    "needs": [
+      "autonomy",
+      "empowerment",
+      "trust",
+      "equality",
+      "freedom"
+    ]
   },
   {
     "fauxFeeling": "Mistrusted",
-    "feelings": ["Sad", "angry"],
-    "needs": ["Trust"]
+    "feelings": [
+      "sad",
+      "angry"
+    ],
+    "needs": [
+      "trust"
+    ]
   },
   {
     "fauxFeeling": "Misunderstood",
-    "feelings": ["Upset", "angry", "frustrated"],
-    "needs": ["To be heard", "understanding", "clarity"]
+    "feelings": [
+      "upset",
+      "angry",
+      "frustrated"
+    ],
+    "needs": [
+      "to be heard",
+      "understanding",
+      "clarity"
+    ]
   },
   {
     "fauxFeeling": "Neglected",
-    "feelings": ["Lonely", "scared"],
-    "needs": ["Connection", "inclusion", "participation", "community"]
+    "feelings": [
+      "lonely",
+      "scared"
+    ],
+    "needs": [
+      "connection",
+      "inclusion",
+      "participation",
+      "community"
+    ]
   },
   {
     "fauxFeeling": "Overpowered",
-    "feelings": ["Angry", "impotent", "helpless", "confused"],
-    "needs": ["Equality", "justice", "autonomy", "freedom"]
+    "feelings": [
+      "angry",
+      "impotent",
+      "helpless",
+      "confused"
+    ],
+    "needs": [
+      "equality",
+      "justice",
+      "autonomy",
+      "freedom"
+    ]
   },
   {
     "fauxFeeling": "Overworked",
-    "feelings": ["Angry", "tired", "frustrated"],
-    "needs": ["Respect", "consideration", "rest", "caring"]
+    "feelings": [
+      "angry",
+      "tired",
+      "frustrated"
+    ],
+    "needs": [
+      "respect",
+      "consideration",
+      "rest",
+      "caring"
+    ]
   },
   {
     "fauxFeeling": "Patronized",
-    "feelings": ["Angry", "frustrated", "resentful"],
-    "needs": ["Recognition", "equality", "respect", "mutuality"]
+    "feelings": [
+      "angry",
+      "frustrated",
+      "resentful"
+    ],
+    "needs": [
+      "recognition",
+      "equality",
+      "respect",
+      "mutuality"
+    ]
   },
   {
     "fauxFeeling": "Pressured",
-    "feelings": ["Anxious", "resentful", "overwhelmed"],
-    "needs": ["Relaxation", "clarity", "space", "consideration"]
+    "feelings": [
+      "anxious",
+      "resentful",
+      "overwhelmed"
+    ],
+    "needs": [
+      "relaxation",
+      "clarity",
+      "space",
+      "consideration"
+    ]
   },
   {
     "fauxFeeling": "Provoked",
-    "feelings": ["Angry", "frustrated", "hostile", "antagonistic", "resentful"],
-    "needs": ["Respect", "consideration"]
+    "feelings": [
+      "angry",
+      "frustrated",
+      "hostile",
+      "antagonistic",
+      "resentful"
+    ],
+    "needs": [
+      "respect",
+      "consideration"
+    ]
   },
   {
     "fauxFeeling": "Put down",
-    "feelings": ["Angry", "sad", "embarrassed"],
-    "needs": ["Respect", "acknowledgment", "understanding"]
+    "feelings": [
+      "angry",
+      "sad",
+      "embarrassed"
+    ],
+    "needs": [
+      "respect",
+      "acknowledgment",
+      "understanding"
+    ]
   },
   {
     "fauxFeeling": "Rejected",
-    "feelings": ["Hurt", "scared", "angry", "defiant"],
-    "needs": ["Belonging", "inclusion", "closeness", "to be seen"]
+    "feelings": [
+      "hurt",
+      "scared",
+      "angry",
+      "defiant"
+    ],
+    "needs": [
+      "belonging",
+      "inclusion",
+      "closeness",
+      "to be seen"
+    ]
   },
   {
     "fauxFeeling": "Ripped off/Screwed",
-    "feelings": ["Angry", "resentful", "disappointed"],
-    "needs": ["Consideration", "justice", "fairness"]
+    "feelings": [
+      "angry",
+      "resentful",
+      "disappointed"
+    ],
+    "needs": [
+      "consideration",
+      "justice",
+      "fairness"
+    ]
   },
   {
     "fauxFeeling": "Smothered/Suffocated",
-    "feelings": ["Frustrated", "afraid", "desperate"],
-    "needs": ["Space", "freedom", "autonomy", "authenticity"]
+    "feelings": [
+      "frustrated",
+      "afraid",
+      "desperate"
+    ],
+    "needs": [
+      "space",
+      "freedom",
+      "autonomy",
+      "authenticity"
+    ]
   },
   {
     "fauxFeeling": "Taken for granted",
-    "feelings": ["Sad", "angry", "hurt", "disappointed"],
-    "needs": ["Appreciation", "acknowledgement", "recognition"]
+    "feelings": [
+      "sad",
+      "angry",
+      "hurt",
+      "disappointed"
+    ],
+    "needs": [
+      "appreciation",
+      "acknowledgement",
+      "recognition"
+    ]
   },
   {
     "fauxFeeling": "Threatened",
-    "feelings": ["Scared", "frightened", "alarmed", "agitated", "defiant"],
-    "needs": ["Safety", "autonomy"]
+    "feelings": [
+      "scared",
+      "frightened",
+      "alarmed",
+      "agitated",
+      "defiant"
+    ],
+    "needs": [
+      "safety",
+      "autonomy"
+    ]
   },
   {
     "fauxFeeling": "Trampled",
-    "feelings": ["Angry", "frustrated", "overwhelmed"],
-    "needs": ["Empowerment", "connection", "community", "to be seen"]
+    "feelings": [
+      "angry",
+      "frustrated",
+      "overwhelmed"
+    ],
+    "needs": [
+      "empowerment",
+      "connection",
+      "community",
+      "to be seen"
+    ]
   },
   {
     "fauxFeeling": "Tricked",
-    "feelings": ["Embarrassed", "angry", "resentful"],
-    "needs": ["Integrity", "trust", "honesty"]
+    "feelings": [
+      "embarrassed",
+      "angry",
+      "resentful"
+    ],
+    "needs": [
+      "integrity",
+      "trust",
+      "honesty"
+    ]
   },
   {
     "fauxFeeling": "Unappreciated",
-    "feelings": ["Sad", "angry", "hurt", "frustrated"],
-    "needs": ["Appreciation", "respect", "acknowledgement"]
+    "feelings": [
+      "sad",
+      "angry",
+      "hurt",
+      "frustrated"
+    ],
+    "needs": [
+      "appreciation",
+      "respect",
+      "acknowledgement"
+    ]
   },
   {
     "fauxFeeling": "Unheard",
-    "feelings": ["Sad", "hostile", "frustrated"],
-    "needs": ["Understanding", "consideration", "empathy"]
+    "feelings": [
+      "sad",
+      "hostile",
+      "frustrated"
+    ],
+    "needs": [
+      "understanding",
+      "consideration",
+      "empathy"
+    ]
   },
   {
     "fauxFeeling": "Unloved",
-    "feelings": ["Sad", "bewildered", "frustrated"],
-    "needs": ["Love", "appreciation", "empathy", "connection"]
+    "feelings": [
+      "sad",
+      "bewildered",
+      "frustrated"
+    ],
+    "needs": [
+      "love",
+      "appreciation",
+      "empathy",
+      "connection"
+    ]
   },
   {
     "fauxFeeling": "Unseen",
-    "feelings": ["Sad", "anxious", "frustrated"],
-    "needs": ["Acknowledgement", "appreciation", "to be heard"]
+    "feelings": [
+      "sad",
+      "anxious",
+      "frustrated"
+    ],
+    "needs": [
+      "acknowledgement",
+      "appreciation",
+      "to be heard"
+    ]
   },
   {
     "fauxFeeling": "Unsupported",
-    "feelings": ["Sad", "hurt", "resentful"],
-    "needs": ["Support", "understanding"]
+    "feelings": [
+      "sad",
+      "hurt",
+      "resentful"
+    ],
+    "needs": [
+      "support",
+      "understanding"
+    ]
   },
   {
     "fauxFeeling": "Unwanted",
-    "feelings": ["Sad", "anxious", "frustrated"],
-    "needs": ["Belonging", "inclusion", "caring"]
+    "feelings": [
+      "sad",
+      "anxious",
+      "frustrated"
+    ],
+    "needs": [
+      "belonging",
+      "inclusion",
+      "caring"
+    ]
   },
   {
     "fauxFeeling": "Used",
-    "feelings": ["Sad", "angry", "resentful"],
-    "needs": ["Autonomy", "equality", "consideration", "mutuality"]
+    "feelings": [
+      "sad",
+      "angry",
+      "resentful"
+    ],
+    "needs": [
+      "autonomy",
+      "equality",
+      "consideration",
+      "mutuality"
+    ]
   },
   {
     "fauxFeeling": "Victimized",
-    "feelings": ["Frightened", "helpless"],
-    "needs": ["Empowerment", "mutuality", "safety", "justice"]
+    "feelings": [
+      "frightened",
+      "helpless"
+    ],
+    "needs": [
+      "empowerment",
+      "mutuality",
+      "safety",
+      "justice"
+    ]
   },
   {
     "fauxFeeling": "Violated",
-    "feelings": ["Sad", "agitated", "anxious"],
-    "needs": ["Privacy", "safety", "trust", "space", "respect"]
+    "feelings": [
+      "sad",
+      "agitated",
+      "anxious"
+    ],
+    "needs": [
+      "privacy",
+      "safety",
+      "trust",
+      "space",
+      "respect"
+    ]
   },
   {
     "fauxFeeling": "Wronged",
-    "feelings": ["Angry", "hurt", "resentful", "irritated"],
-    "needs": ["Respect", "justice", "trust", "safety", "fairness"]
+    "feelings": [
+      "angry",
+      "hurt",
+      "resentful",
+      "irritated"
+    ],
+    "needs": [
+      "respect",
+      "justice",
+      "trust",
+      "safety",
+      "fairness"
+    ]
   }
 ]

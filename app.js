@@ -15,6 +15,7 @@ const selectionBadge = document.getElementById('selection-badge');
 // Application state
 let fauxFeelingsData = [];
 let selectedFauxFeelings = new Set();
+let feelingSynonyms = {};
 
 // Load data from faux-feelings-worksheet.json
 async function loadData() {
@@ -28,6 +29,21 @@ async function loadData() {
     } catch (error) {
         console.error('Error loading data:', error);
         fauxFeelingsContainer.innerHTML = '<p style="color: #e53e3e;">Error loading feelings data. Please refresh the page.</p>';
+    }
+}
+
+// Load synonyms from feeling-synonyms.json
+async function loadSynonyms() {
+    try {
+        const response = await fetch('feeling-synonyms.json');
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        feelingSynonyms = await response.json();
+        console.log('Synonyms loaded successfully:', Object.keys(feelingSynonyms).length, 'words');
+    } catch (error) {
+        console.warn('Synonyms not loaded:', error);
+        // Graceful degradation: search still works without synonyms
     }
 }
 
@@ -61,29 +77,65 @@ function updateSelectionBadge() {
     }
 }
 
+// Get expanded search terms using synonyms
+function getExpandedTerms(query) {
+    const terms = [query];
+
+    // Check if query is a synonym of any canonical word
+    for (const [canonical, synonyms] of Object.entries(feelingSynonyms)) {
+        if (synonyms.includes(query) || canonical === query) {
+            // Add canonical word and all synonyms
+            terms.push(canonical, ...synonyms);
+            break;
+        }
+    }
+
+    return [...new Set(terms)]; // deduplicate
+}
+
 // Search through faux feelings data
 function searchFeelings(query) {
     if (!query.trim()) {
         renderFauxFeelings([]);
         return;
     }
-    
+
     const lowerQuery = query.toLowerCase();
-    const matchingEntries = [];
-    
+    let matchingEntries = [];
+
+    // First pass: direct match (current behavior)
     fauxFeelingsData.forEach(entry => {
         // Check if query matches fauxFeeling
         if (entry.fauxFeeling.toLowerCase().includes(lowerQuery)) {
             matchingEntries.push(entry);
             return;
         }
-        
+
         // Check if query matches any feeling in the feelings array
         if (entry.feelings && entry.feelings.some(feeling => feeling.toLowerCase().includes(lowerQuery))) {
             matchingEntries.push(entry);
         }
     });
-    
+
+    // Second pass: synonym expansion (if no direct matches)
+    if (matchingEntries.length === 0) {
+        const expandedTerms = getExpandedTerms(lowerQuery);
+
+        fauxFeelingsData.forEach(entry => {
+            // Check if any expanded term matches fauxFeeling
+            if (expandedTerms.some(term => entry.fauxFeeling.toLowerCase().includes(term))) {
+                matchingEntries.push(entry);
+                return;
+            }
+
+            // Check if any expanded term matches any feeling
+            if (entry.feelings && entry.feelings.some(feeling =>
+                expandedTerms.some(term => feeling.toLowerCase().includes(term)))) {
+                matchingEntries.push(entry);
+            }
+        });
+    }
+
     console.log('Matching entries for "' + query + '":', matchingEntries);
     renderFauxFeelings(matchingEntries);
 }
@@ -447,4 +499,5 @@ window.addEventListener('resize', () => {
 
 // Initialize the application
 loadData();
+loadSynonyms();
 updateSelectionBadge();
