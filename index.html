@@ -29,10 +29,10 @@
                 <section class="search-section">
                     <label for="feeling-input" class="search-label">What are you feeling?</label>
                     <div class="search-wrapper">
-                        <input 
-                            type="text" 
-                            id="feeling-input" 
-                            class="search-input" 
+                        <input
+                            type="text"
+                            id="feeling-input"
+                            class="search-input"
                             placeholder="Type to search feelings..."
                             autocomplete="off"
                         >
@@ -43,14 +43,14 @@
                 <section class="faux-feelings-section">
                     <h2 class="section-title">Faux Feelings</h2>
                     <div id="faux-feelings-container" class="chips-container">
-                        <!-- Faux feeling chips will appear here -->
+                        <!-- Selected and matching faux feeling chips will appear here -->
                     </div>
                 </section>
 
                 <section class="feelings-section">
                     <h2 class="section-title">Feelings</h2>
                     <div id="feelings-container" class="chips-container">
-                        <!-- Feeling chips from selected faux feelings will appear here -->
+                        <!-- Feeling chips matching search will appear here -->
                     </div>
                 </section>
 
@@ -65,15 +65,54 @@
 
         <div id="tab-visualization" class="tab-content">
             <main>
+                <section class="viz-controls-section">
+                    <h2 class="section-title">Build Your Visualization</h2>
+                    <p class="viz-instructions">Select the feelings and needs that resonate with you to build your personalized visualization.</p>
+
+                    <div class="viz-subsection">
+                        <h3 class="viz-subsection-title">Faux Feelings</h3>
+                        <div id="viz-faux-feelings-container" class="chips-container">
+                            <!-- Selected faux feelings will appear here -->
+                        </div>
+                    </div>
+
+                    <div class="viz-subsection">
+                        <h3 class="viz-subsection-title">Feelings</h3>
+                        <div id="viz-feelings-container" class="chips-container">
+                            <!-- Available feelings from selected faux feelings will appear here -->
+                        </div>
+                    </div>
+
+                    <div class="viz-subsection">
+                        <h3 class="viz-subsection-title">Core Needs</h3>
+                        <div id="viz-needs-container" class="chips-container">
+                            <!-- Available needs from selected faux feelings will appear here -->
+                        </div>
+                    </div>
+                </section>
+
                 <section class="visualization-section">
+                    <h2 class="section-title">Your Visualization</h2>
                     <div id="visualization-container">
-                        <p class="empty-state">Select some faux feelings in the Search tab to see the visualization</p>
+                        <p class="empty-state">Select at least one feeling and one need above to see your personalized visualization</p>
                         <svg id="sankey-svg"></svg>
                     </div>
                 </section>
             </main>
         </div>
     </div>
+
+    <!-- Modal for selecting faux feelings -->
+    <div id="feeling-modal" class="modal hidden">
+        <div class="modal-content">
+            <button class="modal-close" aria-label="Close">&times;</button>
+            <p id="modal-message" class="modal-message"></p>
+            <div id="modal-faux-feelings" class="modal-chips-container">
+                <!-- Faux feeling options will appear here -->
+            </div>
+        </div>
+    </div>
+
     <script src="https://cdn.jsdelivr.net/npm/d3@7"></script>
     <script src="https://cdn.jsdelivr.net/npm/d3-sankey@0.12.3"></script>
     <script src="app.js"></script>
