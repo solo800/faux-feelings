@@ -1,0 +1,33 @@
+[
+  {
+    "id": "sad",
+    "label": "Sad",
+    "description": "Feelings of loss, disconnection, or low energy",
+    "color": "#7ba8c1",
+    "feelings": [
+      "sad", "hurt", "lonely", "disappointed", "desperate",
+      "helpless", "powerless", "tired", "bewildered", "confused",
+      "impotent", "embarrassed", "humiliated", "in pain"
+    ]
+  },
+  {
+    "id": "angry",
+    "label": "Angry",
+    "description": "Feelings of frustration, resistance, or conflict",
+    "color": "#c4a882",
+    "feelings": [
+      "angry", "frustrated", "resentful", "antagonistic", "defiant",
+      "enraged", "hostile", "irritated", "thwarted", "agitated", "upset"
+    ]
+  },
+  {
+    "id": "scared",
+    "label": "Scared",
+    "description": "Feelings of threat, uncertainty, or pressure",
+    "color": "#9cb5a4",
+    "feelings": [
+      "anxious", "frightened", "scared", "terrified", "afraid",
+      "alarmed", "overwhelmed", "pressured", "tense", "distressed"
+    ]
+  }
+]

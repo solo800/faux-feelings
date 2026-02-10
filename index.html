@@ -40,6 +40,12 @@
                     </div>
                 </section>
 
+                <section id="category-landing">
+                    <div id="category-grid" class="category-grid">
+                        <!-- Category cards populated by JS -->
+                    </div>
+                </section>
+
                 <section class="faux-feelings-section">
                     <h2 class="section-title">Faux Feelings</h2>
                     <div id="faux-feelings-container" class="chips-container">
@@ -92,10 +98,23 @@
                 </section>
 
                 <section class="visualization-section">
-                    <h2 class="section-title">Your Visualization</h2>
-                    <div id="visualization-container">
-                        <p class="empty-state">Select at least one feeling and one need above to see your personalized visualization</p>
-                        <svg id="sankey-svg"></svg>
+                    <div id="iceberg-scene">
+                        <div class="iceberg-zone iceberg-sky">
+                            <h3 class="zone-label">Faux Feelings</h3>
+                            <div id="iceberg-faux-feelings" class="zone-items"></div>
+                        </div>
+                        <div class="iceberg-zone iceberg-surface">
+                            <div class="iceberg-tip"></div>
+                            <div class="waterline"></div>
+                            <h3 class="zone-label">Feelings</h3>
+                            <div id="iceberg-feelings" class="zone-items"></div>
+                        </div>
+                        <div class="iceberg-zone iceberg-deep">
+                            <div class="iceberg-body"></div>
+                            <h3 class="zone-label">Core Needs</h3>
+                            <div id="iceberg-needs" class="zone-items"></div>
+                        </div>
+                        <p id="iceberg-empty-state" class="empty-state">Select feelings and needs above to build your iceberg</p>
                     </div>
                 </section>
             </main>
@@ -113,8 +132,6 @@
         </div>
     </div>
 
-    <script src="https://cdn.jsdelivr.net/npm/d3@7"></script>
-    <script src="https://cdn.jsdelivr.net/npm/d3-sankey@0.12.3"></script>
     <script src="app.js"></script>
 </body>
 </html>

@@ -21,6 +21,9 @@ const tabSearch = document.getElementById('tab-search');
 const tabVisualization = document.getElementById('tab-visualization');
 const selectionBadge = document.getElementById('selection-badge');
 
+// Category landing element
+const categoryLanding = document.getElementById('category-landing');
+
 // Application state
 let fauxFeelingsData = [];
 let selectedFauxFeelings = new Set();
@@ -28,6 +31,7 @@ let selectedFeelings = new Set(); // User-selected feelings
 let selectedNeeds = new Set(); // User-selected needs
 let unselectedMatchingFauxFeelings = new Set(); // Unselected faux feelings that match search
 let feelingSynonyms = {};
+let feelingCategories = [];
 
 // Load data from faux-feelings-worksheet.json
 async function loadData() {
@@ -56,6 +60,72 @@ async function loadSynonyms() {
     } catch (error) {
         console.warn('Synonyms not loaded:', error);
         // Graceful degradation: search still works without synonyms
+    }
+}
+
+// Load feeling categories
+async function loadCategories() {
+    try {
+        const response = await fetch('feeling-categories.json');
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        feelingCategories = await response.json();
+        console.log('Categories loaded successfully:', feelingCategories.length, 'categories');
+        renderCategoryLanding();
+    } catch (error) {
+        console.warn('Categories not loaded:', error);
+    }
+}
+
+// Render category landing cards
+function renderCategoryLanding() {
+    const grid = document.getElementById('category-grid');
+    grid.innerHTML = '';
+
+    feelingCategories.forEach(category => {
+        const card = document.createElement('div');
+        card.className = 'category-card';
+        card.style.borderTopColor = category.color;
+
+        const heading = document.createElement('h3');
+        heading.textContent = category.label;
+
+        const desc = document.createElement('p');
+        desc.textContent = category.description;
+
+        const chipsWrap = document.createElement('div');
+        chipsWrap.className = 'category-chips';
+
+        category.feelings.forEach(feeling => {
+            const chip = document.createElement('div');
+            chip.className = `chip category-${category.id}`;
+            chip.textContent = feeling;
+            chip.addEventListener('click', () => {
+                handleCategoryFeelingClick(feeling);
+            });
+            chipsWrap.appendChild(chip);
+        });
+
+        card.appendChild(heading);
+        card.appendChild(desc);
+        card.appendChild(chipsWrap);
+        grid.appendChild(card);
+    });
+}
+
+// Handle click on a category feeling chip
+function handleCategoryFeelingClick(feeling) {
+    showFeelingModalForSelection(feeling);
+}
+
+// Show/hide category landing based on search state
+function updateCategoryLandingVisibility() {
+    const hasSearch = searchInput.value.trim().length > 0;
+    if (hasSearch) {
+        categoryLanding.classList.add('hidden');
+    } else {
+        categoryLanding.classList.remove('hidden');
     }
 }
 
@@ -440,7 +510,7 @@ function toggleFauxFeeling(fauxFeeling) {
     // Update visualization if on visualization tab
     if (tabVisualization.classList.contains('active')) {
         renderVisualizationControls();
-        renderSankey();
+        renderIceberg();
     }
 }
 
@@ -482,6 +552,7 @@ function renderNeeds() {
 searchInput.addEventListener('input', (e) => {
     const hasValue = e.target.value.length > 0;
     clearButton.classList.toggle('visible', hasValue);
+    updateCategoryLandingVisibility();
 
     // When user starts typing, clear non-selected items
     if (hasValue) {
@@ -502,6 +573,7 @@ clearButton.addEventListener('click', () => {
     renderFeelingsResults([]);
     unselectedMatchingFauxFeelings.clear();
     renderFauxFeelingsDisplay();
+    updateCategoryLandingVisibility();
     searchInput.focus();
 });
 
@@ -637,7 +709,7 @@ function toggleVizFeeling(feeling) {
     }
 
     renderVizFeelings();
-    renderSankey();
+    renderIceberg();
 }
 
 // Toggle need selection in viz tab
@@ -649,220 +721,59 @@ function toggleVizNeed(need) {
     }
 
     renderVizNeeds();
-    renderSankey();
+    renderIceberg();
 }
 
-// Build Sankey diagram data from selected items only
-function buildSankeyData() {
-    // Return empty structure if not all three types are selected
-    if (selectedFauxFeelings.size === 0 || selectedFeelings.size === 0 || selectedNeeds.size === 0) {
-        return { nodes: [], links: [] };
-    }
-
-    const nodes = [];
-    const nodeIds = new Set();
-    const linkMap = new Map(); // Track link counts using "source|||target" as key
-
-    // Iterate through selected faux feelings
-    selectedFauxFeelings.forEach(fauxFeeling => {
-        const entry = fauxFeelingsData.find(e => e.fauxFeeling === fauxFeeling);
-        if (!entry) return;
-
-        // Add faux feeling node
-        const fauxId = `faux-${fauxFeeling}`;
-        if (!nodeIds.has(fauxId)) {
-            nodes.push({ id: fauxId, name: fauxFeeling, type: 'faux' });
-            nodeIds.add(fauxId);
-        }
-
-        // Process only selected feelings that are in this entry
-        if (entry.feelings) {
-            entry.feelings.forEach(feeling => {
-                const feelingLower = feeling.toLowerCase();
-
-                // Skip if this feeling matches any selected faux feeling
-                if (doesFeelingMatchFauxFeeling(feeling)) return;
-
-                // Only include if this feeling (or its synonyms) is selected
-                const synonyms = getSynonymsForFeeling(feelingLower);
-                const isSelected = Array.from(selectedFeelings).some(selectedFeeling =>
-                    synonyms.includes(selectedFeeling.toLowerCase())
-                );
-
-                if (!isSelected) return;
-
-                // Add feeling node
-                const feelingId = `feeling-${feeling}`;
-                if (!nodeIds.has(feelingId)) {
-                    nodes.push({ id: feelingId, name: feeling, type: 'feeling' });
-                    nodeIds.add(feelingId);
-                }
-
-                // Add link from faux feeling to feeling
-                const linkKey1 = `${fauxId}|||${feelingId}`;
-                linkMap.set(linkKey1, (linkMap.get(linkKey1) || 0) + 1);
-
-                // Process only selected needs
-                if (entry.needs) {
-                    entry.needs.forEach(need => {
-                        // Only include if this need is selected
-                        if (!selectedNeeds.has(need)) return;
-
-                        // Add need node
-                        const needId = `need-${need}`;
-                        if (!nodeIds.has(needId)) {
-                            nodes.push({ id: needId, name: need, type: 'need' });
-                            nodeIds.add(needId);
-                        }
-
-                        // Add link from feeling to need
-                        const linkKey2 = `${feelingId}|||${needId}`;
-                        linkMap.set(linkKey2, (linkMap.get(linkKey2) || 0) + 1);
-                    });
-                }
-            });
-        }
-    });
-
-    // Convert link map to links array
-    const links = [];
-    linkMap.forEach((value, key) => {
-        const [source, target] = key.split('|||');
-        links.push({ source, target, value });
-    });
-
-    return { nodes, links };
-}
-
-// Render Sankey diagram
-function renderSankey() {
-    const data = buildSankeyData();
-    const svg = d3.select('#sankey-svg');
-    const emptyState = document.querySelector('#visualization-container .empty-state');
+// Render iceberg visualization
+function renderIceberg() {
+    const fauxContainer = document.getElementById('iceberg-faux-feelings');
+    const feelingsContainer = document.getElementById('iceberg-feelings');
+    const needsContainer = document.getElementById('iceberg-needs');
+    const emptyState = document.getElementById('iceberg-empty-state');
 
     // Clear existing content
-    svg.selectAll('*').remove();
+    fauxContainer.innerHTML = '';
+    feelingsContainer.innerHTML = '';
+    needsContainer.innerHTML = '';
 
-    // Show empty state if no data
-    if (data.nodes.length === 0) {
+    const hasFaux = selectedFauxFeelings.size > 0;
+    const hasFeelings = selectedFeelings.size > 0;
+    const hasNeeds = selectedNeeds.size > 0;
+    const hasData = hasFaux && (hasFeelings || hasNeeds);
+
+    // Toggle empty state and zones
+    if (!hasData) {
         emptyState.classList.remove('hidden');
+        document.querySelectorAll('.iceberg-zone').forEach(z => z.style.display = 'none');
         return;
     }
 
-    // Hide empty state
     emptyState.classList.add('hidden');
+    document.querySelectorAll('.iceberg-zone').forEach(z => z.style.display = '');
 
-    // Detect viewport and choose orientation
-    const isMobile = window.innerWidth < 768;
+    // Populate faux feelings (sky zone)
+    selectedFauxFeelings.forEach(fauxFeeling => {
+        const item = document.createElement('span');
+        item.className = 'zone-item';
+        item.textContent = fauxFeeling;
+        fauxContainer.appendChild(item);
+    });
 
-    // Get SVG dimensions
-    const container = document.getElementById('visualization-container');
-    const width = container.clientWidth;
-    const height = container.clientHeight;
-    const margin = 20;
+    // Populate feelings (surface zone)
+    selectedFeelings.forEach(feeling => {
+        const item = document.createElement('span');
+        item.className = 'zone-item';
+        item.textContent = feeling;
+        feelingsContainer.appendChild(item);
+    });
 
-    // Configure sankey
-    const sankey = d3.sankey()
-        .nodeId(d => d.id)
-        .nodeWidth(20)
-        .nodePadding(10)
-        .nodeAlign(d3.sankeyCenter)
-        .extent([[margin, margin], [width - margin, height - margin]]);
-
-    // Apply sankey layout to data
-    const graph = sankey(data);
-
-    // Set SVG dimensions explicitly
-    svg.attr('width', width).attr('height', height);
-
-    // Create link path generator
-    const linkHorizontal = d3.sankeyLinkHorizontal();
-
-    // Create links (paths)
-    const link = svg.append('g')
-        .attr('class', 'links')
-        .selectAll('path')
-        .data(graph.links)
-        .join('path')
-        .attr('d', d => {
-            if (isMobile) {
-                // Vertical: manually create bezier path with swapped coordinates
-                // For top-to-bottom flow
-                const x0 = (d.source.y0 + d.source.y1) / 2;  // Center x of source
-                const y0 = d.source.x1;                      // Bottom edge of source
-                const x1 = (d.target.y0 + d.target.y1) / 2;  // Center x of target
-                const y1 = d.target.x0;                      // Top edge of target
-
-                // Control points for smooth vertical curve
-                const yi = d3.interpolateNumber(y0, y1);
-                const cy0 = yi(0.5);  // Control point y for source
-                const cy1 = yi(0.5);  // Control point y for target
-
-                return `M${x0},${y0} C${x0},${cy0} ${x1},${cy1} ${x1},${y1}`;
-            } else {
-                // Horizontal: standard left-to-right
-                return linkHorizontal(d);
-            }
-        })
-        .attr('stroke', '#cbd5e0')
-        .attr('stroke-width', d => Math.max(1, d.width))
-        .attr('fill', 'none')
-        .attr('opacity', 0.5);
-
-    // Create nodes (rectangles)
-    const node = svg.append('g')
-        .attr('class', 'nodes')
-        .selectAll('rect')
-        .data(graph.nodes)
-        .join('rect')
-        .attr('x', d => isMobile ? d.y0 : d.x0)
-        .attr('y', d => isMobile ? d.x0 : d.y0)
-        .attr('width', d => isMobile ? (d.y1 - d.y0) : (d.x1 - d.x0))
-        .attr('height', d => isMobile ? (d.x1 - d.x0) : (d.y1 - d.y0))
-        .attr('fill', d => {
-            if (d.type === 'faux') return '#7ba8c1';
-            if (d.type === 'feeling') return '#9cb5a4';
-            if (d.type === 'need') return '#c4a882';
-            return '#cbd5e0';
-        })
-        .attr('stroke', '#fff')
-        .attr('stroke-width', 2);
-
-    // Add labels
-    const label = svg.append('g')
-        .attr('class', 'labels')
-        .selectAll('text')
-        .data(graph.nodes)
-        .join('text')
-        .attr('x', d => {
-            if (isMobile) {
-                // Vertical: center horizontally
-                return (d.y0 + d.y1) / 2;
-            } else {
-                // Horizontal: position based on side
-                return d.x0 < width / 2 ? d.x1 + 6 : d.x0 - 6;
-            }
-        })
-        .attr('y', d => {
-            if (isMobile) {
-                // Vertical: position above or below
-                return d.x0 < height / 2 ? d.x0 - 6 : d.x1 + 12;
-            } else {
-                // Horizontal: center vertically
-                return (d.y0 + d.y1) / 2;
-            }
-        })
-        .attr('text-anchor', d => {
-            if (isMobile) {
-                return 'middle';
-            } else {
-                return d.x0 < width / 2 ? 'start' : 'end';
-            }
-        })
-        .attr('dominant-baseline', 'middle')
-        .attr('font-size', '12px')
-        .attr('fill', '#2d3748')
-        .text(d => d.name);
+    // Populate needs (deep zone)
+    selectedNeeds.forEach(need => {
+        const item = document.createElement('span');
+        item.className = 'zone-item';
+        item.textContent = need;
+        needsContainer.appendChild(item);
+    });
 }
 
 // Handle tab button clicks
@@ -877,22 +788,12 @@ tabBtnVisualization.addEventListener('click', () => {
     }
     switchTab('visualization');
     renderVisualizationControls();
-    renderSankey();
-});
-
-// Handle window resize to redraw Sankey with correct orientation
-let resizeTimeout;
-window.addEventListener('resize', () => {
-    clearTimeout(resizeTimeout);
-    resizeTimeout = setTimeout(() => {
-        if (tabVisualization.classList.contains('active')) {
-            renderSankey();
-        }
-    }, 250);
+    renderIceberg();
 });
 
 // Initialize the application
 loadData();
 loadSynonyms();
+loadCategories();
 updateSelectionBadge();
 checkVisualizationEnabled(); // Disable visualization button initially

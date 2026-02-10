@@ -345,22 +345,22 @@ hr {
     font-style: italic;
 }
 
-/* Visualization Section */
+/* Iceberg Visualization */
 .visualization-section {
-    background: white;
-    padding: 24px;
+    background: transparent;
+    padding: 0;
     border-radius: 16px;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
-    min-height: 500px;
+    box-shadow: none;
+    overflow: hidden;
 }
 
-#visualization-container {
-    width: 100%;
-    min-height: 450px;
+#iceberg-scene {
     position: relative;
+    border-radius: 16px;
+    overflow: hidden;
 }
 
-#visualization-container .empty-state {
+#iceberg-scene .empty-state {
     position: absolute;
     top: 50%;
     left: 50%;
@@ -369,16 +369,201 @@ hr {
     font-style: italic;
     text-align: center;
     max-width: 80%;
+    z-index: 5;
 }
 
-#visualization-container .empty-state.hidden {
+#iceberg-scene .empty-state.hidden {
     display: none;
 }
 
-#sankey-svg {
+/* Zone shared styles */
+.iceberg-zone {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 28px 20px;
+}
+
+.zone-label {
+    font-size: 0.75rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+    margin-bottom: 12px;
+    opacity: 0.7;
+}
+
+.zone-items {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 10px;
+    position: relative;
+    z-index: 2;
+}
+
+.zone-item {
+    padding: 8px 16px;
+    border-radius: 20px;
+    font-size: 0.9375rem;
+    font-weight: 500;
+    transition: transform 0.2s ease, opacity 0.2s ease;
+}
+
+/* Sky Zone */
+.iceberg-sky {
+    background: linear-gradient(180deg, #f7fbfd 0%, #e4eff5 100%);
+    padding-top: 32px;
+    padding-bottom: 24px;
+}
+
+.iceberg-sky .zone-label {
+    color: #5a7a8a;
+}
+
+.iceberg-sky .zone-item {
+    background: rgba(255, 255, 255, 0.8);
+    color: #3a5a6a;
+    border: 1px solid rgba(123, 168, 193, 0.3);
+}
+
+/* Surface Zone */
+.iceberg-surface {
+    background: linear-gradient(180deg, #c5dce8 0%, #9fc5d8 100%);
+    padding-top: 12px;
+    padding-bottom: 28px;
+    min-height: 120px;
+}
+
+.iceberg-tip {
+    width: 0;
+    height: 0;
+    border-left: 40px solid transparent;
+    border-right: 40px solid transparent;
+    border-bottom: 50px solid rgba(220, 235, 243, 0.7);
+    margin-bottom: 4px;
+    position: relative;
+    z-index: 1;
+}
+
+.waterline {
     width: 100%;
-    height: 100%;
-    min-height: 450px;
+    height: 3px;
+    background: linear-gradient(90deg,
+        transparent 0%,
+        rgba(123, 168, 193, 0.6) 20%,
+        rgba(123, 168, 193, 0.8) 50%,
+        rgba(123, 168, 193, 0.6) 80%,
+        transparent 100%
+    );
+    margin-bottom: 16px;
+}
+
+.iceberg-surface .zone-label {
+    color: #3a6a7a;
+}
+
+.iceberg-surface .zone-item {
+    background: rgba(255, 255, 255, 0.5);
+    color: #2c5a6a;
+    border: 1px solid rgba(255, 255, 255, 0.6);
+}
+
+/* Deep Zone */
+.iceberg-deep {
+    background: linear-gradient(180deg, #5a8da3 0%, #3a6a80 50%, #2d5568 100%);
+    padding-top: 12px;
+    padding-bottom: 36px;
+    min-height: 160px;
+}
+
+.iceberg-body {
+    width: 160px;
+    height: 100px;
+    clip-path: polygon(20% 0%, 80% 0%, 100% 100%, 0% 100%);
+    background: rgba(200, 225, 238, 0.25);
+    margin-bottom: 16px;
+    position: relative;
+    z-index: 1;
+}
+
+.iceberg-deep .zone-label {
+    color: rgba(220, 235, 243, 0.7);
+}
+
+.iceberg-deep .zone-item {
+    background: rgba(255, 255, 255, 0.15);
+    color: #e0eff5;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+/* Category Landing */
+.category-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 16px;
+}
+
+.category-card {
+    background: white;
+    border-radius: 16px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+    padding: 20px;
+    border-top: 4px solid;
+}
+
+.category-card h3 {
+    font-size: 1.125rem;
+    font-weight: 600;
+    color: #2d3748;
+    margin-bottom: 4px;
+}
+
+.category-card p {
+    font-size: 0.8125rem;
+    color: #718096;
+    margin-bottom: 12px;
+}
+
+.category-chips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+}
+
+.chip.category-sad {
+    background: #e0eef5;
+    color: #3a6a82;
+}
+
+.chip.category-sad:hover {
+    background: #c8e0ec;
+    border-color: #7ba8c1;
+}
+
+.chip.category-angry {
+    background: #f0e8dc;
+    color: #7a6040;
+}
+
+.chip.category-angry:hover {
+    background: #e5d8c6;
+    border-color: #c4a882;
+}
+
+.chip.category-scared {
+    background: #e2ede6;
+    color: #4a6e54;
+}
+
+.chip.category-scared:hover {
+    background: #cdddd3;
+    border-color: #9cb5a4;
+}
+
+#category-landing.hidden {
+    display: none;
 }
 
 /* Modal Styles */
@@ -500,8 +685,7 @@ hr {
     .faux-feelings-section,
     .feelings-section,
     .needs-section,
-    .viz-controls-section,
-    .visualization-section {
+    .viz-controls-section {
         padding: 18px;
         border-radius: 12px;
     }
@@ -541,16 +725,22 @@ hr {
         font-size: 0.875rem;
     }
 
-    .visualization-section {
-        min-height: 400px;
+    .iceberg-zone {
+        padding: 20px 16px;
     }
 
-    #visualization-container {
-        min-height: 350px;
+    .zone-item {
+        padding: 6px 12px;
+        font-size: 0.875rem;
     }
 
-    #sankey-svg {
-        min-height: 350px;
+    .iceberg-body {
+        width: 120px;
+        height: 80px;
+    }
+
+    .category-grid {
+        grid-template-columns: 1fr;
     }
 }
 
